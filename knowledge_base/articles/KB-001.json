@@ -1,0 +1,17 @@
+{
+  "id": "KB-001",
+  "title": "What cloud providers does CloudDash support?",
+  "category": "faq",
+  "tags": [
+    "providers",
+    "aws",
+    "gcp",
+    "azure",
+    "onboarding"
+  ],
+  "content": "## Supported cloud providers\n\nCloudDash natively integrates with three major cloud providers:\n\n- **Amazon Web Services (AWS)** — EC2, RDS, Lambda, CloudWatch, S3, EKS, ECS\n- **Google Cloud Platform (GCP)** — Compute Engine, GKE, Cloud Functions, Cloud Monitoring\n- **Microsoft Azure** — Virtual Machines, AKS, Azure Monitor, App Services\n\nNo other providers (Datadog, New Relic, Splunk, Oracle Cloud, IBM Cloud, Alibaba Cloud) are currently supported as native integrations.\n\n## How to connect a provider\n1. Go to **Settings → Integrations** in your CloudDash dashboard.\n2. Click **Add Integration** and select your provider.\n3. Follow the credential setup: AWS uses IAM roles, GCP uses service accounts, Azure uses managed identities.\n4. CloudDash will validate the connection and begin metric ingestion within 5 minutes.\n\n## Multi-cloud and multi-account\nYou can connect multiple accounts from the same provider and across different providers. Use **tags** and **teams** to organize them.\n\n## What is NOT supported\nCloudDash does not currently integrate with Datadog, New Relic, PagerDuty, Splunk, or any third-party monitoring platform. If you need such an integration, please contact support to submit a feature request to the product team.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

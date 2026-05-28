@@ -1,0 +1,17 @@
+{
+  "id": "KB-007",
+  "title": "AWS CloudWatch integration failing",
+  "category": "troubleshooting",
+  "tags": [
+    "aws",
+    "cloudwatch",
+    "integration",
+    "error",
+    "setup"
+  ],
+  "content": "## Common CloudWatch integration errors\n\n### Error: `CloudWatch:GetMetricData access denied`\n**Cause**: The IAM policy attached to your CloudDash role is missing `cloudwatch:GetMetricData`.\n**Fix**: Add the permission to your IAM policy. See KB-005 for the full required policy.\n\n### Error: `AssumeRole failed`\n**Cause**: The trust policy on your IAM role does not allow CloudDash's AWS account to assume it.\n**Fix**: Update the trust policy to include:\n```json\n{\n  \"Effect\": \"Allow\",\n  \"Principal\": {\n    \"AWS\": \"arn:aws:iam::123456789012:root\"\n  },\n  \"Action\": \"sts:AssumeRole\"\n}\n```\nReplace `123456789012` with the CloudDash AWS account ID shown in your integration setup page.\n\n### Error: `Region not enabled`\n**Cause**: The AWS region you selected in CloudDash is not enabled on your AWS account.\n**Fix**: Enable the region in AWS Console under **Account Settings → Regions**.\n\n### Error: `No metrics found`\n**Cause**: Your AWS resources may not be sending metrics to CloudWatch, or the namespace filter is too narrow.\n**Fix**:\n1. Go to AWS CloudWatch Console and verify metrics are appearing there.\n2. In CloudDash, go to **Integrations → AWS → Metric Filters** and broaden the namespace selection.\n\n## Setup checklist\n- [ ] IAM role exists with correct trust policy\n- [ ] IAM policy has all required permissions (see KB-005)\n- [ ] External ID matches what CloudDash shows in the integration setup\n- [ ] Selected region matches where your resources run\n- [ ] Re-validated credentials after any changes",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "KB-003",
+  "title": "How do I invite team members to CloudDash?",
+  "category": "faq",
+  "tags": [
+    "team",
+    "invite",
+    "users",
+    "rbac",
+    "access"
+  ],
+  "content": "## Inviting team members\n\nCloudDash supports team-based access with role-based permissions.\n\n## Steps to invite\n1. Go to **Settings → Team Management**.\n2. Click **Invite Member**.\n3. Enter the email address of the person to invite.\n4. Select their role (see roles below).\n5. Click **Send Invite**. They will receive an email with a sign-up link valid for 72 hours.\n\n## Available roles\n\n| Role | Permissions |\n|------|-------------|\n| **Owner** | Full access including billing and team management. One per organization. |\n| **Admin** | All access except billing. Can invite/remove members. |\n| **Member** | Can view and edit dashboards, alerts, and integrations. Cannot manage billing or team. |\n| **Viewer** | Read-only access to dashboards and alerts. Cannot modify anything. |\n\n## Plan limits\n- **Starter**: up to 3 team members\n- **Pro**: up to 15 team members\n- **Enterprise**: unlimited team members\n\n## Notes\n- Pending invites can be cancelled from **Settings → Team Management → Pending Invites**.\n- If an invite expires, you can resend it from the same page.\n- SSO users are provisioned automatically — see KB-017 for SSO setup.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

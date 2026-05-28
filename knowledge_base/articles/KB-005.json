@@ -1,0 +1,17 @@
+{
+  "id": "KB-005",
+  "title": "Alerts not firing after updating AWS credentials",
+  "category": "troubleshooting",
+  "tags": [
+    "alerts",
+    "aws",
+    "credentials",
+    "iam",
+    "integration"
+  ],
+  "content": "## Problem\nAfter updating AWS IAM credentials in CloudDash, alerts stop firing or metrics stop appearing on dashboards.\n\n## Root cause\nCloudDash caches the previous credentials for up to 15 minutes. Additionally, if the new IAM role or access key is missing required permissions, the integration silently fails.\n\n## Step-by-step fix\n\n### Step 1: Force credential refresh\n1. Go to **Settings → Integrations → AWS**.\n2. Click on the affected account.\n3. Click **Re-validate Credentials**.\n4. Wait 2–3 minutes for the cache to clear.\n\n### Step 2: Verify IAM permissions\nYour IAM role or user must have these minimum permissions:\n```json\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Effect\": \"Allow\",\n    \"Action\": [\n      \"cloudwatch:GetMetricData\",\n      \"cloudwatch:ListMetrics\",\n      \"cloudwatch:DescribeAlarms\",\n      \"ec2:DescribeInstances\",\n      \"tag:GetResources\"\n    ],\n    \"Resource\": \"*\"\n  }]\n}\n```\n\n### Step 3: Check the integration health panel\n1. Go to **Settings → Integrations → AWS → Health**.\n2. Look for error codes. Common ones:\n   - `AUTH_FAILED` — credentials are wrong or expired\n   - `PERMISSION_DENIED` — IAM policy is missing a required action\n   - `RATE_LIMITED` — too many API calls; reduce polling frequency\n\n### Step 4: Test an alert manually\nGo to **Alerts → [Alert Name] → Test** to trigger a test firing. If it works, the integration is healthy.\n\n## Still not working?\nIf none of the above resolves the issue, open a support ticket with your AWS Account ID and integration ID from the Health panel.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

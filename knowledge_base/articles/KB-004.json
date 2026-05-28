@@ -1,0 +1,16 @@
+{
+  "id": "KB-004",
+  "title": "CloudDash SLA and support response times",
+  "category": "faq",
+  "tags": [
+    "sla",
+    "uptime",
+    "support",
+    "response time"
+  ],
+  "content": "## Uptime SLA\n\n| Plan | Uptime Guarantee | Compensation |\n|------|-----------------|---------------|\n| Starter | 99.5% | Service credit |\n| Pro | 99.9% | Service credit |\n| Enterprise | 99.99% | Service credit + SLA review |\n\nDowntime is measured monthly. Credits are applied automatically to the next invoice.\n\n## Support response times\n\n| Priority | Starter | Pro | Enterprise |\n|----------|---------|-----|------------|\n| Critical (system down) | 24 hours | 4 hours | 1 hour |\n| High (major feature broken) | 48 hours | 8 hours | 2 hours |\n| Medium (degraded functionality) | 72 hours | 24 hours | 4 hours |\n| Low (question/request) | 5 days | 48 hours | 24 hours |\n\n## Support channels\n- **Starter**: Email only\n- **Pro**: Email and live chat (business hours, Mon–Fri 9am–6pm UTC)\n- **Enterprise**: Email, live chat, dedicated Slack channel, and phone\n\n## Reporting downtime\nIf you experience downtime, open a ticket at support.clouddash.io with your account ID and the time range. Our team will investigate and apply credits within 5 business days if the SLA was breached.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

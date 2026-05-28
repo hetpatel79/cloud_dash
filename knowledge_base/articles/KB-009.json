@@ -1,0 +1,17 @@
+{
+  "id": "KB-009",
+  "title": "Webhook not receiving events",
+  "category": "troubleshooting",
+  "tags": [
+    "webhook",
+    "events",
+    "endpoint",
+    "alerts",
+    "notifications"
+  ],
+  "content": "## Problem\nCloudDash webhooks are configured but events are not arriving at your endpoint.\n\n## Checklist\n\n### 1. Verify endpoint is publicly reachable\nCloudDash cannot reach endpoints behind a VPN or firewall without IP whitelisting.\n- **Fix**: Whitelist CloudDash outbound IPs: `34.102.45.0/24` and `35.201.78.0/24`.\n- Or use a tunnel like ngrok for local development.\n\n### 2. Check endpoint returns 2xx\nCloudDash marks a delivery as failed if the endpoint returns anything other than `200–299`.\n- **Fix**: Ensure your endpoint returns `200 OK` immediately, even if you process the event asynchronously.\n\n### 3. Verify webhook is active\n1. Go to **Settings → Webhooks**.\n2. Check the webhook status is **Active** (not Paused or Failed).\n3. If status is **Failed**, click **Reset** to re-activate it.\n\n### 4. Check delivery logs\nIn **Settings → Webhooks → [Webhook Name] → Delivery History**, you can see:\n- Timestamp of each delivery attempt\n- HTTP response code from your endpoint\n- Request payload\n- Error message if delivery failed\n\n### 5. Signature verification\nIf your endpoint rejects requests due to signature mismatch:\n- The signature is sent in the `X-CloudDash-Signature` header.\n- It is computed as: `HMAC-SHA256(webhook_secret, raw_request_body)`\n- Ensure you verify against the **raw** body, not a parsed JSON object.\n\n## Retry policy\nCloudDash retries failed deliveries: immediately, then after 1 min, 5 min, 30 min, and 2 hours. After 5 failures the webhook is paused.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

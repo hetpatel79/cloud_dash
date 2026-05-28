@@ -1,0 +1,19 @@
+{
+  "id": "KB-008",
+  "title": "SSO configuration not working",
+  "category": "troubleshooting",
+  "tags": [
+    "sso",
+    "saml",
+    "okta",
+    "azure-ad",
+    "login",
+    "authentication"
+  ],
+  "content": "## Common SSO issues and fixes\n\n### Issue: `SAML Response invalid signature`\n**Cause**: The certificate in CloudDash does not match the one your IdP is signing with.\n**Fix**:\n1. In your IdP (Okta / Azure AD), download the current signing certificate.\n2. In CloudDash, go to **Settings → SSO → Upload Certificate** and upload the new certificate.\n3. Test the login flow.\n\n### Issue: `Email attribute not found in SAML assertion`\n**Cause**: Your IdP is not sending the email attribute, or it is mapped to a non-standard attribute name.\n**Fix**: In your IdP, map the user email attribute to `email` or `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress`.\n\n### Issue: `User provisioned but cannot access dashboards`\n**Cause**: The user was created via SSO but not assigned to a team with dashboard access.\n**Fix**: Go to **Settings → Team Management** and assign the user to the appropriate team.\n\n### Issue: `Redirect loop on SSO login`\n**Cause**: The ACS URL in your IdP does not match the one CloudDash expects.\n**Fix**: Copy the exact ACS URL from **Settings → SSO → Service Provider Details** and paste it into your IdP.\n\n## SSO setup requirements\n- SAML 2.0 is required. OAuth/OIDC is supported on Enterprise plans only.\n- The IdP must send `email` and `name` attributes at minimum.\n- Only Enterprise plan supports SCIM user provisioning.\n\nFor a full SSO setup walkthrough, see KB-017 (Okta) or KB-018 (Azure AD RBAC).",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "Pro",
+    "Enterprise"
+  ]
+}

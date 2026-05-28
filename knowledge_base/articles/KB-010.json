@@ -1,0 +1,18 @@
+{
+  "id": "KB-010",
+  "title": "CloudDash pricing plans comparison",
+  "category": "billing",
+  "tags": [
+    "pricing",
+    "plans",
+    "starter",
+    "pro",
+    "enterprise",
+    "features"
+  ],
+  "content": "## CloudDash plans\n\n| Feature | Starter | Pro | Enterprise |\n|---------|---------|-----|------------|\n| Price | $29/month | $99/month | Custom (contact sales) |\n| Cloud accounts | 1 | 5 | Unlimited |\n| Team members | 3 | 15 | Unlimited |\n| Dashboards | 5 | 50 | Unlimited |\n| Alert rules | 10 | 100 | Unlimited |\n| Metrics retention | 30 days | 13 months | Custom |\n| Support | Email | Email + chat | Dedicated + SLA |\n| SSO / SAML | No | Yes | Yes |\n| SCIM provisioning | No | No | Yes |\n| Audit logs | No | 30 days | 1 year |\n| Custom integrations | No | No | Yes |\n\n## Billing cycle\n- All plans are billed **monthly** by default.\n- Annual billing is available with a **20% discount**: Starter $278/year, Pro $950/year.\n- Enterprise is invoiced annually with custom terms.\n\n## Overages\n- Starter/Pro plans do not allow overages — you must upgrade to access more resources.\n- Enterprise plans can negotiate overage rates contractually.\n\n## Taxes\nPrices shown are exclusive of applicable taxes. Tax is calculated at checkout based on your billing address.\n\n## Free trial\n- All plans include a **14-day free trial** with no credit card required.\n- Trial accounts have Pro-level features during the trial period.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

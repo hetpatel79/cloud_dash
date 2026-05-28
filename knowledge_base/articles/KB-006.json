@@ -1,0 +1,17 @@
+{
+  "id": "KB-006",
+  "title": "Dashboard loading slowly or not rendering",
+  "category": "troubleshooting",
+  "tags": [
+    "dashboard",
+    "performance",
+    "loading",
+    "slow",
+    "rendering"
+  ],
+  "content": "## Symptoms\n- Dashboard takes more than 10 seconds to load\n- Charts show a spinner indefinitely\n- Some panels load but others remain blank\n\n## Common causes and fixes\n\n### 1. Date range too large\nDashboards with a date range over 90 days perform significantly slower.\n- **Fix**: Reduce the date range to 30 days or less. Use the **Summary** view for longer trends.\n\n### 2. Too many metrics on one dashboard\nEach panel makes separate API calls to your cloud provider.\n- **Fix**: Split large dashboards into focused views. Maximum recommended panels per dashboard: 20 for Pro, 40 for Enterprise.\n\n### 3. Browser cache issue\n- **Fix**: Hard refresh with `Ctrl+Shift+R` (Windows/Linux) or `Cmd+Shift+R` (Mac).\n- Clear browser cache if the issue persists.\n\n### 4. Browser compatibility\nCloudDash officially supports Chrome 110+, Firefox 109+, Edge 110+, Safari 16+.\n- **Fix**: Update your browser or switch to Chrome.\n\n### 5. Integration data delay\nSome cloud provider metrics have an ingestion lag:\n- AWS CloudWatch: up to 5 minutes\n- GCP Cloud Monitoring: up to 3 minutes\n- Azure Monitor: up to 10 minutes\n\n### 6. Account-level data volume\nIf you monitor thousands of resources, the CloudDash indexer may be under load.\n- **Fix**: Check the **Status** page at status.clouddash.io. If there is an ongoing incident, wait for resolution.\n\n## Persistent issues\nIf dashboards consistently load slowly with fewer than 10 panels and a short date range, open a support ticket with your account ID and a screenshot of the browser's Network tab showing slow requests.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

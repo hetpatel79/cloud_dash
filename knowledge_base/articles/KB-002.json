@@ -1,0 +1,16 @@
+{
+  "id": "KB-002",
+  "title": "How do I reset my API key?",
+  "category": "faq",
+  "tags": [
+    "api",
+    "key",
+    "reset",
+    "security"
+  ],
+  "content": "## Resetting your CloudDash API key\n\nYour API key grants programmatic access to CloudDash. If you believe it has been compromised or you simply need a new one, follow these steps.\n\n## Steps to reset\n1. Log in to CloudDash and go to **Settings → API Keys**.\n2. Find the key you want to rotate and click **Revoke**.\n3. Confirm the revocation in the dialog. The old key stops working immediately.\n4. Click **Generate New Key**.\n5. Copy the new key immediately — it will not be shown again.\n6. Update the key in all applications and services that use it.\n\n## Important notes\n- Revoking a key is **immediate and irreversible**. Any service using the old key will receive `401 Unauthorized` errors instantly.\n- You can create multiple API keys with different scopes (read-only, read-write, admin).\n- Keys do not expire automatically but can be set to expire on a specific date under **Advanced Settings**.\n- API key activity is logged under **Settings → Audit Logs**.\n\n## Best practices\n- Never share API keys in code repositories or public channels.\n- Use separate keys per application.\n- Rotate keys every 90 days as a security best practice.\n- Use read-only keys for dashboards and monitoring scripts.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}
