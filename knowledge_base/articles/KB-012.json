@@ -1,0 +1,16 @@
+{
+  "id": "KB-012",
+  "title": "Refund and cancellation policy",
+  "category": "billing",
+  "tags": [
+    "refund",
+    "cancellation",
+    "policy",
+    "money-back"
+  ],
+  "content": "## Cancellation policy\n\nYou can cancel your CloudDash subscription at any time.\n\n### How to cancel\n1. Go to **Settings → Billing → Cancel Subscription**.\n2. Select a cancellation reason (optional but helps us improve).\n3. Click **Confirm Cancellation**.\n\n### What happens after cancellation\n- Your account remains active until the end of the current billing period.\n- No further charges are made after cancellation.\n- Your data is retained for 30 days after the billing period ends, then permanently deleted.\n- You can reactivate within 30 days to restore all data.\n\n## Refund policy\n\n### 30-day money-back guarantee\n- New customers are eligible for a full refund within **30 days of their first paid charge**.\n- To request: email billing@clouddash.io with your account ID and reason.\n- Refunds are processed within **5–7 business days** to the original payment method.\n\n### After 30 days\n- Refunds after 30 days are granted **only in exceptional circumstances** (e.g., billing errors, duplicate charges, extended service outages exceeding SLA).\n- Partial refunds may be issued at CloudDash's discretion.\n- Requests must be submitted within **90 days** of the charge.\n\n### Non-refundable items\n- Annual plan discounts already applied\n- Overage charges that have already been incurred\n- Usage-based add-ons\n\n## Duplicate charge refunds\nIf you have been charged twice for the same period, this is always refunded in full. Contact billing@clouddash.io with both invoice IDs.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

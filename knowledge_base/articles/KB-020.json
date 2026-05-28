@@ -1,0 +1,17 @@
+{
+  "id": "KB-020",
+  "title": "Multi-organization and team management",
+  "category": "account",
+  "tags": [
+    "organization",
+    "team",
+    "multi-org",
+    "billing",
+    "management"
+  ],
+  "content": "## Organizations vs teams\n\n- **Organization (Org)**: The top-level account. Billing is at the org level. One org per subscription.\n- **Team**: A group of users within an org. Used to scope access to specific dashboards, integrations, and alerts.\n\n## Creating teams\n1. Go to **Settings → Teams → Create Team**.\n2. Give the team a name (e.g., \"Backend Engineering\", \"Finance\").\n3. Add members from the org member list.\n4. Assign the team to specific dashboards or integrations.\n\n## Multi-organization setup\nCloudDash does not support true multi-tenancy within one account. However:\n- **Agencies and MSPs**: Can create separate org accounts for each client. Each org has its own billing, members, and data isolation.\n- **Large enterprises**: Can use **workspaces** within one org to create logical separations. Workspaces share billing but have separate member lists and dashboards.\n\n## Billing separation\n- Each org is billed independently.\n- You cannot consolidate billing across multiple orgs — this is on the Enterprise roadmap.\n- If you manage multiple client orgs, each requires its own subscription.\n\n## Leaving or transferring an organization\n- **Transfer ownership**: Go to **Settings → Organization → Transfer Ownership**. The new owner must be an existing Admin.\n- **Leave org**: Go to **Settings → Team Management → Leave Organization**. You lose all access immediately.\n- **Delete org**: Only the Owner can delete an org. All data is permanently deleted after 30 days.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "KB-016",
+  "title": "Webhook configuration and event types",
+  "category": "api",
+  "tags": [
+    "webhook",
+    "events",
+    "configuration",
+    "payload",
+    "signature"
+  ],
+  "content": "## Setting up a webhook\n1. Go to **Settings → Webhooks → Add Webhook**.\n2. Enter your endpoint URL (must be HTTPS in production).\n3. Select the events to subscribe to.\n4. Copy the **Webhook Secret** — used for signature verification.\n5. Click **Save and Test** to send a test payload.\n\n## Available event types\n\n| Event | Trigger |\n|-------|---------|\n| `alert.fired` | An alert threshold was breached |\n| `alert.resolved` | An alert returned to normal |\n| `integration.connected` | A cloud account was successfully connected |\n| `integration.failed` | A cloud integration lost connectivity |\n| `user.invited` | A team member was invited |\n| `billing.payment_failed` | A payment attempt failed |\n| `billing.invoice_created` | A new invoice was generated |\n\n## Payload format\n```json\n{\n  \"event\": \"alert.fired\",\n  \"timestamp\": \"2026-04-15T10:30:00Z\",\n  \"account_id\": \"acc_123\",\n  \"data\": {\n    \"alert_id\": \"alert_456\",\n    \"alert_name\": \"CPU > 90%\",\n    \"severity\": \"high\",\n    \"resource\": \"i-0abc123\"\n  }\n}\n```\n\n## Signature verification\nVerify the `X-CloudDash-Signature` header:\n```python\nimport hmac, hashlib\n\ndef verify_signature(secret, payload_body, signature):\n    expected = hmac.new(\n        secret.encode(), payload_body, hashlib.sha256\n    ).hexdigest()\n    return hmac.compare_digest(expected, signature)\n```",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

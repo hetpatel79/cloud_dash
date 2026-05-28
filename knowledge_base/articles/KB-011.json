@@ -1,0 +1,17 @@
+{
+  "id": "KB-011",
+  "title": "How to upgrade or downgrade your plan",
+  "category": "billing",
+  "tags": [
+    "upgrade",
+    "downgrade",
+    "plan",
+    "subscription",
+    "proration"
+  ],
+  "content": "## Upgrading your plan\n\n### Steps\n1. Go to **Settings → Billing → Change Plan**.\n2. Select the new plan.\n3. Review the prorated charge summary.\n4. Click **Confirm Upgrade**.\n\n### Proration\n- Upgrades take effect **immediately**.\n- You are charged a prorated amount for the remainder of the current billing period.\n- Example: Upgrading from Pro ($99) to Enterprise ($299) on day 15 of a 30-day cycle → you are charged $100 (half the difference) immediately.\n\n## Downgrading your plan\n\n### Steps\n1. Go to **Settings → Billing → Change Plan**.\n2. Select the lower plan.\n3. Review what features you will lose.\n4. Click **Confirm Downgrade**.\n\n### What happens on downgrade\n- Downgrade takes effect at the **end of the current billing period**.\n- You keep current plan features until then.\n- Resources exceeding the new plan limits (e.g., more than 3 team members on Starter) will be read-only until you reduce them.\n- Excess dashboards and alerts are not deleted — they are archived and restored if you upgrade again.\n\n## Cancellation vs downgrade\n- Downgrading to Starter is not the same as cancelling. To cancel, see KB-012.\n\n## Failed upgrades\nIf an upgrade fails due to a payment issue, your current plan remains active. Fix your payment method in **Settings → Billing → Payment Methods** and retry.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

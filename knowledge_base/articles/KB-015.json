@@ -1,0 +1,17 @@
+{
+  "id": "KB-015",
+  "title": "API rate limits and quotas",
+  "category": "api",
+  "tags": [
+    "rate limit",
+    "429",
+    "quota",
+    "api",
+    "throttle"
+  ],
+  "content": "## Rate limits by plan\n\n| Plan | Requests/minute | Requests/day |\n|------|----------------|---------------|\n| Starter | 60 | 10,000 |\n| Pro | 300 | 100,000 |\n| Enterprise | 1,000 | Unlimited |\n\n## Rate limit response\nWhen you exceed the rate limit, CloudDash returns:\n```\nHTTP 429 Too Many Requests\nRetry-After: 30\nX-RateLimit-Limit: 300\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 1715000000\n```\n\n## Handling 429 errors\n\n### Exponential backoff (recommended)\n```python\nimport time\n\ndef api_call_with_retry(fn, max_retries=5):\n    for attempt in range(max_retries):\n        response = fn()\n        if response.status_code != 429:\n            return response\n        wait = (2 ** attempt) + random.uniform(0, 1)\n        time.sleep(wait)\n    raise Exception('Max retries exceeded')\n```\n\n### Using the Retry-After header\nAlways respect the `Retry-After` header value in seconds rather than implementing a fixed wait.\n\n## Bulk endpoints\nFor high-volume use cases, use the `/v1/metrics/batch` endpoint which accepts up to 1,000 data points per request, counting as one request against your limit.\n\n## Increasing limits\n- Pro users can request a temporary limit increase via support ticket.\n- Enterprise users can negotiate custom limits contractually.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "KB-017",
+  "title": "Setting up SSO with Okta",
+  "category": "account",
+  "tags": [
+    "sso",
+    "okta",
+    "saml",
+    "setup",
+    "authentication"
+  ],
+  "content": "## Prerequisites\n- CloudDash Pro or Enterprise plan\n- Okta administrator access\n\n## Step-by-step setup\n\n### In CloudDash\n1. Go to **Settings → SSO**.\n2. Click **Configure SAML**.\n3. Copy these values — you will need them in Okta:\n   - **ACS URL**: `https://app.clouddash.io/auth/saml/callback`\n   - **Entity ID**: `https://app.clouddash.io/auth/saml`\n   - **Name ID Format**: `EmailAddress`\n\n### In Okta\n1. Go to **Applications → Create App Integration**.\n2. Choose **SAML 2.0**.\n3. Set **Single sign-on URL** to the ACS URL above.\n4. Set **Audience URI** to the Entity ID above.\n5. Under **Attribute Statements**, add:\n   - Name: `email` → Value: `user.email`\n   - Name: `name` → Value: `user.displayName`\n6. Click **Finish** and go to the **Sign On** tab.\n7. Click **View Setup Instructions** and download the **IdP metadata XML**.\n\n### Back in CloudDash\n1. Upload the IdP metadata XML under **Settings → SSO → Upload Metadata**.\n2. Click **Test SSO**. A new browser tab opens with the Okta login page.\n3. Log in with an Okta user. If successful, you see a confirmation screen.\n4. Click **Enable SSO** to activate for all users.\n\n## Enforcing SSO\nOnce enabled, you can optionally enforce SSO so password-based login is disabled for all non-admin users.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "Pro",
+    "Enterprise"
+  ]
+}

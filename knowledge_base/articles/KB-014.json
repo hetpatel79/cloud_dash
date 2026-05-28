@@ -1,0 +1,18 @@
+{
+  "id": "KB-014",
+  "title": "API authentication and key management",
+  "category": "api",
+  "tags": [
+    "api",
+    "authentication",
+    "bearer",
+    "token",
+    "key",
+    "scopes"
+  ],
+  "content": "## Authentication\n\nAll CloudDash API requests require a Bearer token in the `Authorization` header:\n\n```\nAuthorization: Bearer cd_live_xxxxxxxxxxxxxxxxxxxx\n```\n\n## Key types\n\n| Key prefix | Type | Use case |\n|------------|------|----------|\n| `cd_live_` | Production key | Live data, write operations |\n| `cd_test_` | Test key | Sandbox environment, no real data |\n| `cd_readonly_` | Read-only key | Dashboards, reporting tools |\n\n## Creating API keys\n1. Go to **Settings → API Keys → Create Key**.\n2. Select key type and optional scopes.\n3. Set an expiry date (optional but recommended).\n4. Copy the key — it is shown only once.\n\n## Available scopes\n- `metrics:read` — read metric data\n- `alerts:read` / `alerts:write` — manage alert rules\n- `dashboards:read` / `dashboards:write` — manage dashboards\n- `integrations:read` — view integration status\n- `admin` — full access (use with caution)\n\n## Security best practices\n- Use the minimum scope required.\n- Store keys in environment variables, never in source code.\n- Rotate keys every 90 days.\n- Use `cd_readonly_` keys for read-only applications.\n\n## Key revocation\nRevoke a key immediately from **Settings → API Keys**. Revocation is instant — there is no grace period.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

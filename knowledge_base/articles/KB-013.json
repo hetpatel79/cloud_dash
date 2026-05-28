@@ -1,0 +1,17 @@
+{
+  "id": "KB-013",
+  "title": "Understanding your CloudDash invoice",
+  "category": "billing",
+  "tags": [
+    "invoice",
+    "billing",
+    "charges",
+    "line items",
+    "payment"
+  ],
+  "content": "## Invoice structure\n\nEach monthly invoice contains the following sections:\n\n### Base subscription\nThe flat monthly fee for your plan (Starter $29, Pro $99, Enterprise per contract).\n\n### Add-ons\nOptional paid features billed separately:\n- **Extended retention** — additional metric history beyond plan default\n- **Extra seats** — team members above plan limit (Pro only: $8/seat/month)\n- **Priority support upgrade** — upgrading support tier without changing plan\n\n### Prorated adjustments\nIf you upgraded or downgraded mid-cycle, a prorated credit or charge appears here.\n\n### Taxes\nVAT or sales tax based on your billing address. US customers may see state tax. EU customers see VAT.\n\n### Payment methods accepted\n- Credit/debit cards (Visa, Mastercard, Amex)\n- ACH bank transfer (US, Enterprise plans only)\n- Wire transfer (Enterprise plans only)\n- No PayPal, crypto, or prepaid cards\n\n## Downloading invoices\n1. Go to **Settings → Billing → Invoice History**.\n2. Click any invoice to download as PDF.\n\n## Invoice disputes\nTo dispute a charge:\n1. Go to **Settings → Billing → Invoice History**.\n2. Click the invoice and select **Dispute Charge**.\n3. Describe the issue and submit.\nOur billing team responds within 2 business days.\n\n## Failed payments\nIf a payment fails, CloudDash retries after 3 days, then 7 days. After two failed retries, your account is downgraded to read-only until payment is resolved.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

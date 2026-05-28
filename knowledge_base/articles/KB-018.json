@@ -1,0 +1,17 @@
+{
+  "id": "KB-018",
+  "title": "Role-based access control (RBAC) in CloudDash",
+  "category": "account",
+  "tags": [
+    "rbac",
+    "roles",
+    "permissions",
+    "access control",
+    "security"
+  ],
+  "content": "## Roles overview\n\nCloudDash uses four built-in roles. Roles are assigned per organization and apply across all workspaces.\n\n| Role | Who should have it | Key permissions |\n|------|-------------------|------------------|\n| **Owner** | Founder/primary admin | Everything including billing, delete org, transfer ownership |\n| **Admin** | IT admins, team leads | Manage members, integrations, all dashboards/alerts. No billing access. |\n| **Member** | Engineers, DevOps | View and edit dashboards, alerts, and integrations they are assigned to |\n| **Viewer** | Stakeholders, read-only users | View dashboards and alert history only. No edits. |\n\n## Changing a user's role\n1. Go to **Settings → Team Management**.\n2. Find the user and click **Edit**.\n3. Select the new role from the dropdown.\n4. Click **Save**.\n\n## Dashboard-level permissions\nIn addition to org-level roles, individual dashboards can be shared with:\n- **Specific users** — override org role for that dashboard\n- **Teams** — all members of a team get the specified access level\n- **Anyone with link** — view-only for anyone who has the share URL\n\n## Enterprise: custom roles (coming Q3 2026)\nEnterprise customers will be able to define custom roles with granular permission sets.\n\n## Audit trail\nAll role changes are logged in **Settings → Audit Logs** with timestamp, actor, and previous/new role.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "All"
+  ]
+}

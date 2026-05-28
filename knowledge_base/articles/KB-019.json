@@ -1,0 +1,19 @@
+{
+  "id": "KB-019",
+  "title": "Audit logs and compliance export",
+  "category": "account",
+  "tags": [
+    "audit",
+    "logs",
+    "compliance",
+    "export",
+    "security",
+    "siem"
+  ],
+  "content": "## What audit logs capture\n\nCloudDash audit logs record every action that changes configuration or accesses sensitive data:\n\n- User logins and logouts (including SSO)\n- Team member invitations, role changes, removals\n- Integration additions and removals\n- API key creation and revocation\n- Dashboard and alert creation, edits, deletions\n- Billing changes (plan upgrades, payment method updates)\n- SSO configuration changes\n\n## Accessing audit logs\n1. Go to **Settings → Audit Logs**.\n2. Filter by date range, user, or action type.\n3. Click any entry to see the full detail including IP address and user agent.\n\n## Retention by plan\n- **Starter**: Audit logs not available\n- **Pro**: 30 days retention\n- **Enterprise**: 1 year retention, with optional extension\n\n## Exporting logs\n### Manual export\nIn **Audit Logs**, click **Export CSV** to download filtered logs.\n\n### Automated SIEM integration\nEnterprise customers can stream audit logs to:\n- Splunk (via HTTP Event Collector)\n- Datadog (log forwarding — note: this is log streaming only, not a monitoring integration)\n- Elastic/ELK Stack\n- Generic Syslog via webhook\n\nConfigure under **Settings → Audit Logs → SIEM Integration**.\n\n## Compliance\nAudit logs support SOC 2 Type II, ISO 27001, and GDPR compliance requirements. Contact sales for a compliance report.",
+  "last_updated": "2026-04-15",
+  "applies_to": [
+    "Pro",
+    "Enterprise"
+  ]
+}
