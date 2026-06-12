@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>CloudDash Support · Multi-Agent Console</title>
+  <!-- Google Fonts: Inter (sans) & fallback serif for editorial headlines -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap"
+    rel="stylesheet">
+  <!-- Marked.js CDN for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ---------- DESIGN SYSTEM TOKENS (ElevenLabs Editorial) ---------- */
+    :root {
+      /* Brand & Accent */
+      --primary: #292524;
+      --primary-active: #0c0a09;
+      --primary-disabled: #d6d3d1;
+
+      /* Surfaces */
+      --canvas: #f5f5f5;
+      --canvas-soft: #fafafa;
+      --canvas-deep: #0c0a09;
+      --surface-card: #ffffff;
+      --surface-strong: #f0efed;
+      --surface-dark: #0c0a09;
+      --surface-dark-elevated: #1c1917;
+
+      /* Hairlines */
+      --hairline: #e7e5e4;
+      --hairline-soft: #f0efed;
+      --hairline-strong: #d6d3d1;
+
+      /* Text */
+      --ink: #0c0a09;
+      --body: #4e4e4e;
+      --body-strong: #292524;
+      --muted: #777169;
+      --muted-soft: #a8a29e;
+      --on-primary: #ffffff;
+      --on-dark: #ffffff;
+      --on-dark-soft: #a8a29e;
+
+      /* Gradients */
+      --gradient-mint: #a7e5d3;
+      --gradient-peach: #f4c5a8;
+      --gradient-lavender: #c8b8e0;
+      --gradient-sky: #a8c8e8;
+      --gradient-rose: #e8b8c4;
+
+      /* Semantic */
+      --success: #16a34a;
+      --error: #dc2626;
+
+      /* Typography */
+      --font-display: 'EB Garamond', 'GT Sectra', 'Times New Roman', serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+
+      /* Spacing */
+      --space-xxs: 4px;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-base: 16px;
+      --space-md: 20px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-xxl: 48px;
+
+      /* Radius */
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-xxl: 24px;
+      --radius-pill: 9999px;
+
+      /* Shadows */
+      --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    body {
+      background-color: var(--canvas);
+      font-family: var(--font-body);
+      color: var(--body);
+      height: 100vh;
+      overflow: hidden;
+      letter-spacing: 0.16px; /* Editorial body feel */
+    }
+
+    /* main two-column layout */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+      background-color: var(--canvas);
+    }
+
+    /* ========= LEFT SIDEBAR (280px) ========= */
+    .sidebar {
+      width: 280px;
+      background-color: var(--canvas-soft);
+      border-right: 1px solid var(--hairline);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: var(--space-xl) var(--space-lg);
+      border-bottom: 1px solid var(--hairline-soft);
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 300;
+      letter-spacing: -0.32px;
+      color: var(--ink);
+      margin-bottom: var(--space-lg);
+    }
+
+    .logo span {
+      color: var(--muted);
+    }
+
+    .new-convo-btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border: none;
+      padding: 10px var(--space-md);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 15px;
+      height: 40px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .new-convo-btn:hover {
+      background-color: var(--primary-active);
+    }
+
+    .conversations-list {
+      flex: 1;
+      padding: var(--space-md);
+      overflow-y: auto;
+    }
+
+    .conv-item {
+      background: transparent;
+      border-radius: var(--radius-lg);
+      padding: 14px var(--space-base);
+      margin-bottom: var(--space-xs);
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+
+    .conv-item:hover {
+      background: var(--surface-card);
+      border-color: var(--hairline-soft);
+    }
+
+    .conv-item.active {
+      background: var(--surface-card);
+      border-color: var(--hairline);
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .conv-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--body-strong);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conv-badge {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.96px;
+      background: var(--surface-strong);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      color: var(--ink);
+    }
+
+    .status-area {
+      padding: var(--space-lg);
+      border-top: 1px solid var(--hairline);
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background-color: var(--error);
+      transition: background 0.2s;
+    }
+
+    .status-dot.online {
+      background-color: var(--success);
+      box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15);
+    }
+
+    /* ========= RIGHT MAIN AREA ========= */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--canvas);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Atmospheric Orbs */
+    .orb {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .orb-1 { background: radial-gradient(circle, var(--gradient-sky) 0%, transparent 60%); top: -200px; right: -150px; }
+    .orb-2 { background: radial-gradient(circle, var(--gradient-peach) 0%, transparent 60%); bottom: 0; left: 10%; }
+    .orb-3 { background: radial-gradient(circle, var(--gradient-lavender) 0%, transparent 60%); top: 30%; right: 20%; opacity: 0.25; }
+
+    /* top bar */
+    .chat-header {
+      padding: var(--space-lg) var(--space-xl);
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: transparent;
+      z-index: 1;
+    }
+
+    .agent-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .agent-badge {
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface-strong);
+      color: var(--ink);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.96px;
+      text-transform: uppercase;
+      transition: background 0.1s ease;
+    }
+
+    .agent-badge.highlight {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .trace-id {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--muted);
+      background: transparent;
+      padding: 4px 8px;
+    }
+
+    .handover-btn {
+      background: transparent;
+      border: 1px solid var(--hairline-strong);
+      color: var(--ink);
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .handover-btn:hover {
+      background: rgba(0,0,0,0.03);
+    }
+
+    /* chat messages container */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-xxl) var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+      z-index: 1;
+    }
+
+    /* bubble common */
+    .message-bubble {
+      max-width: 80%;
+      padding: 24px;
+      border-radius: var(--radius-xl);
+      position: relative;
+      word-wrap: break-word;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--surface-dark);
+      color: var(--on-dark);
+      border-bottom-right-radius: 4px;
+    }
+
+    .agent-message {
+      align-self: flex-start;
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      box-shadow: var(--shadow-subtle);
+      color: var(--ink);
+      border-bottom-left-radius: 4px;
+    }
+
+    .agent-name-badge {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-strong);
+      color: var(--ink);
+      letter-spacing: 0.96px;
+    }
+
+    .message-text {
+      color: inherit;
+    }
+
+    .message-text h1, .message-text h2, .message-text h3 {
+      font-family: var(--font-display);
+      font-weight: 300;
+      letter-spacing: -0.32px;
+      color: inherit;
+      margin-bottom: 12px;
+      margin-top: 16px;
+    }
+
+    .message-text h1 { font-size: 32px; }
+    .message-text h2 { font-size: 24px; }
+
+    .message-text pre,
+    .message-text code {
+      font-family: 'SF Mono', monospace;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: var(--radius-md);
+      padding: 2px 4px;
+      font-size: 14px;
+    }
+    
+    .user-message .message-text pre,
+    .user-message .message-text code {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .citations {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .citation-pill {
+      background: var(--surface-strong);
+      color: var(--ink);
+      border-radius: var(--radius-xs);
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .citation-pill:hover {
+      background: var(--hairline-strong);
+    }
+
+    .timestamp {
+      font-size: 12px;
+      text-align: right;
+      margin-top: 12px;
+      color: var(--muted-soft);
+    }
+
+    /* handover card (between messages) */
+    .handover-card {
+      align-self: center;
+      width: auto;
+      max-width: 60%;
+      background: transparent;
+      border: 1px solid var(--hairline-strong);
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin: 8px 0;
+    }
+
+    /* escalation terminal card */
+    .escalation-card {
+      align-self: center;
+      width: 80%;
+      background: var(--surface-card);
+      border-left: 4px solid var(--error);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      margin-top: 8px;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    /* input area */
+    .input-area {
+      border-top: 1px solid var(--hairline);
+      padding: var(--space-xl);
+      background: var(--canvas);
+      z-index: 1;
+    }
+
+    .scenario-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .chip {
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .chip:hover {
+      background: var(--surface-strong);
+    }
+
+    .message-input-wrapper {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+    }
+
+    textarea {
+      flex: 1;
+      background: var(--surface-card);
+      border: 1px solid var(--hairline-strong);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ink);
+      resize: none;
+      outline: none;
+      transition: 0.1s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    textarea:focus {
+      border-color: var(--ink);
+      box-shadow: 0 0 0 1px var(--ink);
+    }
+
+    .send-btn {
+      background: var(--primary);
+      border: none;
+      color: var(--on-primary);
+      padding: 10px 24px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      height: 48px;
+    }
+
+    .send-btn:disabled {
+      background: var(--primary-disabled);
+      cursor: not-allowed;
+    }
+
+    .typing-indicator {
+      padding: 8px 16px;
+      background: transparent;
+      color: var(--muted);
+      width: fit-content;
+      font-size: 14px;
+    }
+
+    /* handover slide-over panel */
+    .handover-panel {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: 400px;
+      height: 100%;
+      background: var(--surface-card);
+      border-left: 1px solid var(--hairline);
+      box-shadow: var(--shadow-subtle);
+      transition: right 0.25s ease;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .handover-panel.open {
+      right: 0;
+    }
+
+    .panel-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--hairline);
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: -0.24px;
+      color: var(--ink);
+    }
+
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999;
+      display: none;
+    }
+
+    .tooltip-popup {
+      position: fixed;
+      background: var(--surface-dark-elevated);
+      color: var(--on-dark);
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      max-width: 320px;
+      font-size: 14px;
+      line-height: 1.5;
+      z-index: 1100;
+      box-shadow: var(--shadow-subtle);
+      display: none;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-header">
+          <div class="logo">CloudDash<span>Support</span></div>
+          <button class="new-convo-btn" id="newConversationBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> New Conversation</button>
+        </div>
+        <div class="conversations-list" id="conversationsList"></div>
+      </div>
+      <div class="status-area">
+        <div class="status-dot" id="apiStatusDot"></div>
+        <span>API: localhost:8001</span>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN -->
+    <div class="main-area">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="chat-header">
+        <div class="agent-info">
+          <div class="agent-badge" id="currentAgentBadge">TRIAGE</div>
+          <div class="trace-id" id="traceIdDisplay">trace_id: —</div>
+        </div>
+        <button class="handover-btn" id="viewHandoversBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>View Handovers</button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <div class="input-area">
+        <div class="scenario-chips" id="scenarioChips"></div>
+        <div class="message-input-wrapper">
+          <textarea id="messageInput" rows="1"
+            placeholder="Ask about your CloudDash support... (Shift+Enter for new line)"></textarea>
+          <button class="send-btn" id="sendBtn">Send</button>
+        </div>
+        <div id="typingArea" style="margin-top: 8px; min-height: 28px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- handover slide panel -->
+  <div class="overlay" id="overlay"></div>
+  <div class="handover-panel" id="handoverPanel">
+    <div class="panel-header"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: bottom;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Handover Timeline</div>
+    <div class="panel-content" id="handoverContent"></div>
+    <div style="padding:16px; border-top:1px solid var(--hairline);">
+      <button id="closePanelBtn"
+        style="width:100%; background:var(--surface-card); border:1px solid var(--hairline); border-radius:var(--radius-md); padding:8px;">Close</button>
+    </div>
+  </div>
+  <div id="citationTooltip" class="tooltip-popup"></div>
+
+  <script>
+    // ---------- state management ----------
+    let conversations = [];      // { id, title, agentBadge, traceId, messages: [] }
+    let activeConversationId = null;
+    let currentAgent = "triage";
+    let isLoading = false;
+    let currentTraceId = null;
+
+    // helper: agent badge color map
+    function getAgentColor(agent) {
+      const map = { triage: "#64748b", technical: "#3b82f6", billing: "#f59e0b", escalation: "#ef4444" };
+      return map[agent.toLowerCase()] || "#64748b";
+    }
+
+    function updateAgentBadgeUI(agent, highlight = false) {
+      const badgeDiv = document.getElementById("currentAgentBadge");
+      badgeDiv.innerText = agent.toUpperCase();
+      badgeDiv.style.backgroundColor = getAgentColor(agent);
+      badgeDiv.style.color = "white";
+      if (highlight) {
+        badgeDiv.classList.add("highlight");
+        setTimeout(() => badgeDiv.classList.remove("highlight"), 400);
+      } else {
+        badgeDiv.classList.remove("highlight");
+      }
+    }
+
+    function renderConversationsList() {
+      const container = document.getElementById("conversationsList");
+      container.innerHTML = "";
+      conversations.forEach(conv => {
+        const div = document.createElement("div");
+        div.className = `conv-item ${activeConversationId === conv.id ? 'active' : ''}`;
+        div.innerHTML = `<div class="conv-title">${conv.title || "New chat"}</div>
+                             <div class="conv-badge">${conv.agentBadge || "triage"}</div>`;
+        div.addEventListener("click", () => switchConversation(conv.id));
+        container.appendChild(div);
+      });
+    }
+
+    function switchConversation(convId) {
+      const conv = conversations.find(c => c.id === convId);
+      if (!conv) return;
+      activeConversationId = convId;
+      currentAgent = conv.agentBadge || "triage";
+      currentTraceId = conv.traceId;
+      updateAgentBadgeUI(currentAgent);
+      document.getElementById("traceIdDisplay").innerText = `trace_id: ${currentTraceId || '—'}`;
+      renderConversationsList();
+      renderMessages(conv.messages);
+    }
+
+    function renderMessages(messages) {
+      const container = document.getElementById("chatMessages");
+      container.innerHTML = "";
+      if (!messages) return;
+      messages.forEach(msg => {
+        if (msg.type === "user") {
+          const bubble = document.createElement("div");
+          bubble.className = "message-bubble user-message";
+          bubble.innerHTML = `<div class="message-text">${escapeHtml(msg.text)}</div><div class="timestamp">${msg.timestamp || ''}</div>`;
+          container.appendChild(bubble);
+        }
+        else if (msg.type === "agent") {
+          const bubble = document.createElement("div");
+          bubble.className = "message-bubble agent-message";
+          let agentHtml = `<div class="agent-name-badge" style="background:${getAgentColor(msg.agent)}; color:white;">${msg.agent.toUpperCase()}</div>`;
+          const renderedMarkdown = marked.parse(msg.text);
+          let citationsHtml = "";
+          if (msg.citations && msg.citations.length) {
+            citationsHtml = `<div class="citations">${msg.citations.map(c => `<span class="citation-pill" data-title="${escapeHtml(c.title)}" data-snippet="${escapeHtml(c.content)}">${escapeHtml(c.article_id)}</span>`).join('')}</div>`;
+          }
+          bubble.innerHTML = agentHtml + `<div class="message-text">${renderedMarkdown}</div>${citationsHtml}<div class="timestamp">${msg.timestamp || ''}</div>`;
+          container.appendChild(bubble);
+          attachCitationEvents();
+        }
+        else if (msg.type === "handover") {
+          const card = document.createElement("div");
+          card.className = "handover-card";
+          card.innerHTML = `↳ Handed over: ${msg.fromAgent} → ${msg.toAgent}  •  reason: ${msg.reason || "context switch"}`;
+          container.appendChild(card);
+        }
+        else if (msg.type === "escalation") {
+          const escCard = document.createElement("div");
+          escCard.className = "escalation-card";
+          escCard.innerHTML = `<strong>🚨 Escalated to Human Support</strong><br/>Priority: ${msg.priority || 'high'}<br/>Team: ${msg.team || 'escalation'}<br/>Ticket: ${msg.ticketId || 'N/A'}<br/><br/>A human agent will contact you within ${msg.responseHours || '4'} hours.`;
+          container.appendChild(escCard);
+        }
+      });
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      const msgsDiv = document.getElementById("chatMessages");
+      msgsDiv.scrollTop = msgsDiv.scrollHeight;
+    }
+
+    function attachCitationEvents() {
+      document.querySelectorAll(".citation-pill").forEach(pill => {
+        pill.removeEventListener("click", citationHandler);
+        pill.addEventListener("click", citationHandler);
+      });
+    }
+    function citationHandler(e) {
+      const target = e.currentTarget;
+      const title = target.getAttribute("data-title") || "Knowledge base article";
+      const snippet = target.getAttribute("data-snippet") || "No preview";
+      const tooltip = document.getElementById("citationTooltip");
+      tooltip.innerHTML = `<strong>${title}</strong><br/>${snippet.substring(0, 120)}...`;
+      const rect = target.getBoundingClientRect();
+      tooltip.style.left = `${rect.left + window.scrollX + 10}px`;
+      tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
+      tooltip.style.display = "block";
+      setTimeout(() => { tooltip.style.display = "none"; }, 2500);
+    }
+
+    function escapeHtml(str) { return (str || "").replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+    // add message to active conversation
+    function addMessageToActive(msgObj) {
+      const conv = conversations.find(c => c.id === activeConversationId);
+      if (conv) {
+        conv.messages.push(msgObj);
+        if (msgObj.type === "agent") conv.agentBadge = msgObj.agent;
+        if (msgObj.type === "handover") currentAgent = msgObj.toAgent;
+        else if (msgObj.type === "agent") currentAgent = msgObj.agent;
+        updateAgentBadgeUI(currentAgent, true);
+        renderMessages(conv.messages);
+      }
+    }
+
+    async function checkHealth() {
+      try {
+        const res = await fetch("http://127.0.0.1:8001/health");
+        if (res.ok) document.getElementById("apiStatusDot").classList.add("online");
+        else document.getElementById("apiStatusDot").classList.remove("online");
+      } catch (e) { document.getElementById("apiStatusDot").classList.remove("online"); }
+    }
+
+    async function sendMessage(text) {
+      if (!activeConversationId) {
+        createNewConversationWithInitialMessage(text);
+        return;
+      }
+      if (isLoading) return;
+      isLoading = true;
+      document.getElementById("sendBtn").disabled = true;
+      document.getElementById("messageInput").disabled = true;
+      const typingDiv = document.getElementById("typingArea");
+      typingDiv.innerHTML = '<div class="typing-indicator"><span>✧</span> Agent thinking<span>.</span><span>.</span><span>.</span></div>';
+
+      addMessageToActive({ type: "user", text: text, timestamp: new Date().toLocaleTimeString() });
+      document.getElementById("messageInput").value = "";
+
+      try {
+        const res = await fetch(`http://127.0.0.1:8001/conversations/${activeConversationId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversation_id: activeConversationId, message: text })
+        });
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+
+        const prevAgent = currentAgent;
+        const newAgent = data.current_agent || "triage";
+        if (prevAgent !== newAgent && prevAgent) {
+          addMessageToActive({ type: "handover", fromAgent: prevAgent, toAgent: newAgent, reason: "Agent determined context transition needed" });
+        }
+
+        addMessageToActive({
+          type: "agent",
+          agent: newAgent,
+          text: data.response || "Response processed.",
+          citations: data.citations || [],
+          timestamp: new Date().toLocaleTimeString()
+        });
+
+        if (data.requires_human === true || data.escalation_package) {
+          const pkg = data.escalation_package || {};
+          addMessageToActive({
+            type: "escalation",
+            priority: pkg.priority || "urgent",
+            team: pkg.recommended_team || "human support",
+            ticketId: pkg.ticket_id || "ESC-" + Math.floor(Math.random() * 1000),
+            responseHours: pkg.response_hours || "4"
+          });
+          document.getElementById("messageInput").disabled = true;
+          document.getElementById("sendBtn").disabled = true;
+          typingDiv.innerHTML = '<span style="color:var(--error);">⚠️ Escalated — conversation locked</span>';
+          isLoading = true;
+          return;
+        }
+
+        currentAgent = newAgent;
+        updateAgentBadgeUI(currentAgent);
+        if (data.trace_id) currentTraceId = data.trace_id;
+        document.getElementById("traceIdDisplay").innerText = `trace_id: ${currentTraceId || '—'}`;
+      } catch (err) {
+        addMessageToActive({ type: "agent", agent: "system", text: "❌ Connection error — is the backend running on :8001? [Retry?]", citations: [], timestamp: new Date().toLocaleTimeString() });
+      } finally {
+        if (!document.getElementById("messageInput").disabled || document.getElementById("typingArea").innerText.includes("Escalated")) {
+          // wait, if we disabled it at the start, it's always disabled.
+          // A better way is to just check the HTML or a flag.
+        }
+        // Let's just do it directly.
+        if (!document.getElementById("typingArea").innerHTML.includes("Escalated")) {
+          isLoading = false;
+          document.getElementById("sendBtn").disabled = false;
+          document.getElementById("messageInput").disabled = false;
+          typingDiv.innerHTML = "";
+          document.getElementById("messageInput").focus();
+        }
+      }
+    }
+
+    async function createNewConversationWithInitialMessage(initialMsg) {
+      if (isLoading) return;
+      isLoading = true;
+      document.getElementById("sendBtn").disabled = true;
+      document.getElementById("messageInput").disabled = true;
+      const typingDiv = document.getElementById("typingArea");
+      typingDiv.innerHTML = '<div class="typing-indicator"><span>✧</span> Agent thinking<span>.</span><span>.</span><span>.</span></div>';
+      document.getElementById("messageInput").value = "";
+
+      try {
+        const res = await fetch("http://127.0.0.1:8001/conversations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initial_message: initialMsg })
+        });
+        if (!res.ok) throw new Error("Failed");
+        const data = await res.json();
+        const newId = data.conversation_id;
+        const trace = data.trace_id;
+        const newAgent = data.current_agent || "triage";
+
+        const newConv = {
+          id: newId,
+          title: initialMsg.substring(0, 35) + (initialMsg.length > 35 ? "..." : ""),
+          agentBadge: newAgent,
+          traceId: trace,
+          messages: [
+            { type: "user", text: initialMsg, timestamp: new Date().toLocaleTimeString() },
+            {
+              type: "agent",
+              agent: newAgent,
+              text: data.response || "Response processed.",
+              citations: data.citations || [],
+              timestamp: new Date().toLocaleTimeString()
+            }
+          ]
+        };
+
+        if (data.requires_human === true || data.escalation_package) {
+          const pkg = data.escalation_package || {};
+          newConv.messages.push({
+            type: "escalation",
+            priority: pkg.priority || "urgent",
+            team: pkg.recommended_team || "human support",
+            ticketId: pkg.ticket_id || "ESC-" + Math.floor(Math.random() * 1000),
+            responseHours: pkg.response_hours || "4"
+          });
+        }
+
+        conversations.unshift(newConv);
+        activeConversationId = newId;
+        currentAgent = newAgent;
+        currentTraceId = trace;
+        updateAgentBadgeUI(currentAgent);
+        document.getElementById("traceIdDisplay").innerText = `trace_id: ${trace || '—'}`;
+        renderConversationsList();
+        renderMessages(newConv.messages);
+
+        if (data.requires_human === true || data.escalation_package) {
+          document.getElementById("messageInput").disabled = true;
+          document.getElementById("sendBtn").disabled = true;
+          typingDiv.innerHTML = '<span style="color:var(--error);">⚠️ Escalated — conversation locked</span>';
+          isLoading = true;
+          return;
+        }
+
+      } catch (e) {
+        alert("Backend error: could not start conversation");
+      } finally {
+        if (!document.getElementById("typingArea").innerHTML.includes("Escalated")) {
+          isLoading = false;
+          document.getElementById("sendBtn").disabled = false;
+          document.getElementById("messageInput").disabled = false;
+          typingDiv.innerHTML = "";
+          document.getElementById("messageInput").focus();
+        }
+      }
+    }
+
+    document.getElementById("newConversationBtn").addEventListener("click", () => {
+      const firstMsg = prompt("Type your first message to start conversation:", "My CloudDash alerts stopped firing after I updated AWS integration");
+      if (firstMsg && firstMsg.trim()) createNewConversationWithInitialMessage(firstMsg.trim());
+    });
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const input = document.getElementById("messageInput");
+      if (input.value.trim() && !isLoading) sendMessage(input.value.trim());
+    });
+
+    document.getElementById("messageInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const input = document.getElementById("messageInput");
+        if (input.value.trim() && !isLoading) sendMessage(input.value.trim());
+      }
+    });
+
+    // View handovers panel
+    document.getElementById("viewHandoversBtn").addEventListener("click", async () => {
+      if (!activeConversationId) { alert("No active conversation"); return; }
+      const panel = document.getElementById("handoverPanel");
+      const overlay = document.getElementById("overlay");
+      try {
+        const res = await fetch(`http://127.0.0.1:8001/conversations/${activeConversationId}/handovers`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const handovers = data.events || data || [];
+        const contentDiv = document.getElementById("handoverContent");
+        if (!handovers || handovers.length === 0) contentDiv.innerHTML = "<div class='muted'>No handovers recorded.</div>";
+        else {
+          contentDiv.innerHTML = handovers.map(h => `<div style="border-bottom:1px solid var(--hairline); padding:12px 0;"><strong>${h.from_agent || '?'} → ${h.to_agent || '?'}</strong><br/><span class="muted" style="color: var(--muted); font-size: 13px;">${h.reason || 'no reason'}</span><br/><small style="color: var(--muted-soft);">${h.timestamp || ''}</small></div>`).join('');
+        }
+        panel.classList.add("open");
+        overlay.style.display = "block";
+      } catch (e) { 
+        console.error(e);
+        alert("Could not fetch handovers"); 
+      }
+    });
+    function closePanel() {
+      document.getElementById("handoverPanel").classList.remove("open");
+      document.getElementById("overlay").style.display = "none";
+    }
+    document.getElementById("closePanelBtn").addEventListener("click", closePanel);
+    document.getElementById("overlay").addEventListener("click", closePanel);
+
+    // scenario chips (hardcoded)
+    const chipsData = [
+      { text: "Alert issue", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>', msg: "My CloudDash alerts stopped firing after I updated my AWS integration credentials yesterday. I'm on the Pro plan." },
+      { text: "SSO + Upgrade", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>', msg: "I want to upgrade from Pro to Enterprise, but first can you check if the SSO integration issue I reported last week has been resolved?" },
+      { text: "Double charge", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>', msg: "I've been charged twice for April. I need an immediate refund and I want to speak to a manager." },
+      { text: "KB miss", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: text-bottom;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>', msg: "Does CloudDash support integration with Datadog for cross-platform alerting?" }
+    ];
+    const chipContainer = document.getElementById("scenarioChips");
+    chipsData.forEach(chip => {
+      const btn = document.createElement("button");
+      btn.className = "chip";
+      btn.innerHTML = chip.icon + chip.text;
+      btn.addEventListener("click", () => {
+        document.getElementById("messageInput").value = chip.msg;
+        document.getElementById("messageInput").focus();
+      });
+      chipContainer.appendChild(btn);
+    });
+
+    setInterval(checkHealth, 15000);
+    checkHealth();
+    // fallback demo conversation demo? none
+    if (conversations.length === 0) {
+      // start fresh no auto create
+    }
+  </script>
+</body>
+
+</html>
