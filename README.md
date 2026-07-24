@@ -81,22 +81,6 @@ See **ARCHITECTURE.md** for a deeper component walk-through.
 
 ## Project Structure
 
-```
-clouddash-support/
-├── agents/           Triage, Technical, Billing, Escalation agents + orchestrator
-├── api/              FastAPI entry point, routes, response models
-├── config/           YAML configuration (agents.yaml, settings.yaml)
-├── guardrails/        Input guard (4-layer) and output guard (PII + hallucination)
-├── handover/          Handover protocol, packaging, and JSONL audit log
-├── knowledge_base/    20 curated KB articles (JSON) + ingestion pipeline
-├── models/            Pydantic schemas shared across all modules
-├── retrieval/         Embedder, Qdrant store, hybrid retriever, reranker
-├── tests/             Scenario tests + full QA suite (18 tests)
-├── ui/                Browser-based chat interface
-├── utils/             Structured logging, trace context, OpenAI compatibility layer
-└── logs/              Runtime handover audit logs
-```
-
 ## Getting Started
 
 ### Prerequisites
