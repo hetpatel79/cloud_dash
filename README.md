@@ -177,7 +177,7 @@ The full QA suite (`tests/qa_full.py`) covers 18 tests spanning routing, guardra
 
 ## Acknowledgements
 
-Built during a Summer Internship at **Techmicra IT Solutions**, Ahmedabad, under the guidance of Mr. Pallav Mamtora (CEO, Techmicra IT Solutions) and Dr. Hardik Jayswal (CSPIT, CHARUSAT).
+Built during a Summer Internship II at **Techmicra IT Solutions**, Ahmedabad, under the guidance of Mr. Pallav Mamtora (CEO, Techmicra IT Solutions) and Dr. Hardik Jayswal (CSPIT, CHARUSAT).
 
 ---
 
