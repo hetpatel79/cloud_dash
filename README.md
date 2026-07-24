@@ -43,7 +43,10 @@ Output Guardrail  (PII redaction + grounding check)
 Reply → FastAPI /chat endpoint
 ```
 
-See **ARCHITECTURE.md** for a deeper component walk-through.
+
+## Architecture
+
+See **ARCHITECTURE.md** ![Architecture](architecture.png)for a deeper component walk-through.
 
 | Stage | Responsibility |
 |---|---|
