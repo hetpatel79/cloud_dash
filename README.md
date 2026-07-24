@@ -8,9 +8,6 @@ Built with **LangGraph**, **FastAPI**, **Groq**, **NVIDIA NIM**, and **Qdrant**.
 
 ---
 
-
----
-
 ## Why CloudDash
 
 A support chatbot built around a single general-purpose model tends to run into the same problems in practice: it has no natural way to specialize between a billing dispute and a server outage, no built-in defense against prompt injection or off-topic misuse, and no mechanism to verify its own answer is actually grounded in real documentation before it reaches the customer.
