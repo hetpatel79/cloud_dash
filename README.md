@@ -79,7 +79,7 @@ See **ARCHITECTURE.md** for a deeper component walk-through.
 | Logging | structlog |
 | Tooling | Git/GitHub, Postman, VS Code |
 
-## Project Structure
+
 
 ## Getting Started
 
