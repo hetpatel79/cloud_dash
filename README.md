@@ -43,10 +43,7 @@ Output Guardrail  (PII redaction + grounding check)
 Reply → FastAPI /chat endpoint
 ```
 
-
-## Architecture
-
-
+See **ARCHITECTURE.md** for a deeper component walk-through.
 | Stage | Responsibility |
 |---|---|
 | **Input Guardrail** | Rejects unsafe, off-topic, or prompt-injection messages before any language model is invoked. |
@@ -56,7 +53,7 @@ Reply → FastAPI /chat endpoint
 | **Escalation Agent** | Packages the conversation for human hand-off when a specialist agent cannot resolve it, or when the customer signals they need a human. |
 | **Handover Protocol** | Governs and logs every agent-to-agent transfer against an allow-listed set of transitions. |
 | **Output Guardrail** | Redacts sensitive data (PII) and verifies the reply is grounded in retrieved documentation before release. |
-See **ARCHITECTURE.md** for a deeper component walk-through.
+
 
 ## Features
 
