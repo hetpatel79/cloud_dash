@@ -7,7 +7,9 @@ Routing table:
 
 NVIDIA NIM is still used for:
   - Embeddings  : nvidia/nv-embedqa-e5-v5   (retrieval/embedder.py)
-  - Reranker    : nvidia/llama-3.2-nv-rerankqa-1b-v2  (retrieval/reranker.py)
+  - Reranker    : nvidia/llama-3.2-nv-rerankqa-1b-v2, via the dedicated
+                  NVIDIARerank client (retrieval/reranker.py). Falls back to
+                  an LLM-prompted scoring approach if no NVIDIA_API_KEY is set.
 
 All agent chat calls (triage, technical, billing, escalation, guardrails,
 query-rewriting) go through Groq.

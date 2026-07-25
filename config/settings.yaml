@@ -6,6 +6,7 @@ retrieval:
   embedding_model: "text-embedding-3-small"   # overridden by NVIDIA_EMBEDDING_MODEL when NVIDIA_API_KEY is set
   query_rewrite_llm: true
   rerank_enabled: true
+  rerank_model: "nvidia/llama-3.2-nv-rerankqa-1b-v2"   # dedicated NVIDIA NIM rerank-QA model
 
 qdrant:
   mode: "memory"        # "memory" for local/dev, "url" to use Qdrant Cloud

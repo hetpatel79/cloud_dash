@@ -127,10 +127,19 @@ The chat interface is available at `http://127.0.0.1:8001/ui/`.
 
 ## Tests
 
+Testing is manual and interactive rather than an automated regression suite —
+the pipeline is exercised turn-by-turn against a running server, with a human
+confirming each stage's behaviour rather than asserting against fixed
+expected output.
+
 ```bash
-pytest                              # all scenario tests
-pytest -v tests/test_scenarios.py
+uvicorn api.main:app --host 127.0.0.1 --port 8001   # in one terminal
+python tests/run_interactive_tests.py                # in another
 ```
+
+`run_interactive_tests.py` walks through the scenarios defined in
+`tests/test_payloads.json` turn-by-turn, pausing before each request so you
+can inspect routing, citations, and handovers as they happen.
 
 | # | Scenario | Covers |
 |---|---|---|
@@ -139,7 +148,8 @@ pytest -v tests/test_scenarios.py
 | 3 | Escalation trigger | Double-charge + frustrated sentiment |
 | 4 | KB miss graceful | Unknown integration, no hallucination |
 
-The full QA suite (`tests/qa_full.py`) covers 18 tests spanning routing, guardrails, retrieval, handover, observability, and edge cases.
+See `tests/agent_testing_scenarios_guide.md` for the full set of scenarios
+used during manual testing, including off-topic and prompt-injection cases.
 
 ## Observability
 
