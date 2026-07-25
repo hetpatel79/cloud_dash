@@ -35,6 +35,7 @@ class GraphState(TypedDict, total=False):
     current_agent: str
     previous_agent: str | None
     intent: str | None
+    secondary_intents: list[str]
     entities: dict[str, Any]
     retrieved_chunks: list[dict[str, Any]]
     handover_reason: str | None
@@ -114,14 +115,8 @@ class SupportOrchestrator:
         conv = self._to_conv(state)
         conv.iteration_count += 1
 
-        # Skip re-triage for follow-up messages when already routed to a specialist
-        current = conv.current_agent
-        msg_count = sum(1 for m in conv.messages if m.role == MessageRole.USER)
-        if msg_count > 1 and current and current != AgentType.TRIAGE:
-            # Preserve the existing agent and intent -- just pass through
-            conv.routing_history.append(f"triage:skip_retriage:staying_with={current.value}")
-            return self._to_graph(conv)
-
+        # Always re-triage to detect intent changes in follow-up messages
+        # (e.g., "I was charged twice" → BILLING, then "my dashboard won't load" → TECHNICAL)
         conv = self.triage.process(conv)
         return self._to_graph(conv)
 
@@ -191,6 +186,15 @@ class SupportOrchestrator:
             final_text = gr.sanitized_input if gr and not gr.passed and gr.sanitized_input else text
             conv.messages[idx] = msg.model_copy(update={"content": final_text})
             break
+        
+        # Set is_resolved: False if escalated to human, True if handled by agent
+        if conv.requires_human or conv.handover_target_agent == AgentType.ESCALATION:
+            conv.is_resolved = False
+        else:
+            # Resolved if we have an agent response and no unmet requirements
+            has_agent_response = any(m.role == MessageRole.ASSISTANT for m in conv.messages)
+            conv.is_resolved = has_agent_response and not conv.requires_human
+        
         return self._to_graph(conv)
 
     def _route_input(self, state: GraphState) -> Literal["triage", "output_guard"]:
@@ -207,22 +211,6 @@ class SupportOrchestrator:
     def _route_safety_check(self, state: GraphState) -> Literal["technical", "billing", "escalation", "output_guard"]:
         if state.get("requires_human"):
             return "escalation"
-
-        # If triage was skipped (follow-up), route to the current agent
-        current = state.get("current_agent")
-        routing = state.get("routing_history", [])
-        triage_skipped = any("skip_retriage" in str(r) for r in routing)
-        if triage_skipped and current:
-            if current == AgentType.TECHNICAL.value:
-                return "technical"
-            if current == AgentType.BILLING.value:
-                return "billing"
-            if current == AgentType.ESCALATION.value:
-                return "escalation"
-        
-        # Original triage decision
-        if float(state.get("triage_confidence", 1.0)) < 0.7:
-            return "output_guard"
             
         intent = state.get("intent")
         if intent == IntentType.TECHNICAL.value:
@@ -233,7 +221,12 @@ class SupportOrchestrator:
             return "escalation"
         if intent in {IntentType.ACCOUNT.value, IntentType.GENERAL.value}:
             return "technical"
-        return "output_guard"
+        
+        # Low confidence or unknown intent
+        if float(state.get("triage_confidence", 1.0)) < 0.7:
+            return "output_guard"
+        
+        return "technical"  # Default to technical for fallthrough
 
     def _route_from_agent(self, state: GraphState) -> Literal["technical", "billing", "escalation", "output_guard"]:
         """Bug 1 Fix: Always exit to output_guard unless explicit handover is required."""

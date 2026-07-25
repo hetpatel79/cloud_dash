@@ -37,7 +37,8 @@ class BillingAgent(BaseAgent):
         latest_user = next((m.content for m in reversed(state.messages) if m.role == MessageRole.USER), "")
         lowered = latest_user.lower()
 
-        if (
+        # Early escalation detection but don't return yet - we'll process normally first
+        early_escalation_trigger = (
             ("charged" in lowered or "charge" in lowered)
             and ("twice" in lowered or "double" in lowered)
             and ("refund" in lowered or "manager" in lowered)
@@ -45,12 +46,7 @@ class BillingAgent(BaseAgent):
             "refund" in lowered
             and "manager" in lowered
             and state.entities.sentiment == "frustrated"
-        ):
-            state.requires_human = True
-            state.handover_target_agent = AgentType.ESCALATION
-            state.handover_reason = "High-risk billing dispute requires human review."
-            state.routing_history = list(state.routing_history) + ["billing:escalation_trigger"]
-            return state
+        )
 
         handover_preamble = ""
         if state.previous_agent and state.previous_agent == AgentType.TECHNICAL:
@@ -101,15 +97,21 @@ class BillingAgent(BaseAgent):
                 if m:
                     refund_amount = float(m.group(1))
 
-        if refund_amount > refund_threshold or (
+        # Check for threshold-based escalation but don't return yet
+        threshold_escalation = refund_amount > refund_threshold or (
             state.entities.sentiment == frustrated_sentiment and "refund" in lowered and "manager" in lowered
-        ):
-            state.requires_human = True
-            state.handover_target_agent = AgentType.ESCALATION
-            state.handover_reason = "Billing dispute requires human review per policy thresholds."
-            state.routing_history = list(state.routing_history) + ["billing:escalation_threshold"]
-            return state
-        elif any(
+        )
+
+        # Determine if we need to escalate after generating a response
+        needs_escalation = early_escalation_trigger or threshold_escalation
+        escalation_reason = None
+        if early_escalation_trigger:
+            escalation_reason = "High-risk billing dispute requires human review."
+        elif threshold_escalation:
+            escalation_reason = "Billing dispute requires human review per policy thresholds."
+
+        # Check for handover to technical
+        if any(
             p in lowered
             for p in (
                 "technical support",
@@ -126,6 +128,14 @@ class BillingAgent(BaseAgent):
             state.handover_reason = None
 
         answer = self.call_llm(messages)
+
+        # Now apply escalation AFTER generating the response
+        if needs_escalation:
+            state.requires_human = True
+            state.handover_target_agent = AgentType.ESCALATION
+            state.handover_reason = escalation_reason
+            state.routing_history = list(state.routing_history) + ["billing:escalation_detected"]
+
         state.retrieved_chunks = chunks
         state.current_agent = AgentType.BILLING
         state.messages.append(

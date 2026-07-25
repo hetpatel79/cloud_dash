@@ -81,6 +81,17 @@ class TriageAgent(BaseAgent):
         # Deduplicate: remove primary from secondary list if accidentally included
         state.secondary_intents = [i for i in decision.secondary_intents if i != decision.intent]
 
+        # Set current_agent based on detected intent for proper routing
+        if decision.intent == IntentType.TECHNICAL:
+            state.current_agent = AgentType.TECHNICAL
+        elif decision.intent == IntentType.BILLING:
+            state.current_agent = AgentType.BILLING
+        elif decision.intent == IntentType.ESCALATION:
+            state.current_agent = AgentType.ESCALATION
+        else:
+            # ACCOUNT, GENERAL, or other intents route to TECHNICAL
+            state.current_agent = AgentType.TECHNICAL
+
         state.routing_history.append(
             f"triage:{decision.intent.value}:secondary={[i.value for i in state.secondary_intents]}:{decision.routing_reason}"
         )
