@@ -596,10 +596,88 @@
     button:active {
       transform: scale(0.98);
     }
+
+    /* Notification Toast */
+    .notification-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 400px;
+    }
+
+    .notification {
+      background: var(--surface-card);
+      border-left: 4px solid var(--error);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--ink);
+      box-shadow: var(--shadow-subtle);
+      animation: slideIn 0.3s ease-out;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .notification.success {
+      border-left-color: var(--success);
+    }
+
+    .notification.warning {
+      border-left-color: #f59e0b;
+    }
+
+    .notification.info {
+      border-left-color: #3b82f6;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted-soft);
+      font-size: 16px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notification-close:hover {
+      color: var(--ink);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <div class="notification-container" id="notificationContainer"></div>
   <div class="app-container">
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar">
@@ -664,6 +742,30 @@
     let lastPendingUserMessage = null;
     let lastUserMessage = "";
     let currentTraceId = null;
+
+    // ---------- notification system ----------
+    function showNotification(message, type = 'error', duration = 3000) {
+      const container = document.getElementById('notificationContainer');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <span>${message}</span>
+        <button class="notification-close" aria-label="Close notification">✕</button>
+      `;
+      
+      const closeBtn = notification.querySelector('.notification-close');
+      const removeNotification = () => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      };
+      
+      closeBtn.addEventListener('click', removeNotification);
+      container.appendChild(notification);
+      
+      if (duration > 0) {
+        setTimeout(removeNotification, duration);
+      }
+    }
 
     // helper: agent badge color map
     function getAgentColor(agent) {
@@ -821,7 +923,13 @@
         createNewConversationWithInitialMessage(text);
         return;
       }
-      if (isLoading || lastPendingUserMessage === text || lastUserMessage === text) return;
+      
+      // Check for duplicate message before sending
+      if (isLoading || lastPendingUserMessage === text || lastUserMessage === text) {
+        showNotification("⚠️ Duplicate message — already pending or just sent. Don't send the same message twice.", 'warning', 3000);
+        return;
+      }
+      
       isLoading = true;
       lastPendingUserMessage = text;
       lastUserMessage = text;
@@ -840,6 +948,17 @@
           body: JSON.stringify({ conversation_id: activeConversationId, message: text })
         });
         if (res.status === 409) {
+          // Handle duplicate message from backend
+          showNotification("⚠️ Duplicate message — already sent to backend. Please try a different message.", 'warning', 3000);
+          // Remove the duplicate message from UI
+          const conv = conversations.find(c => c.id === activeConversationId);
+          if (conv && conv.messages.length > 0) {
+            const lastMsg = conv.messages[conv.messages.length - 1];
+            if (lastMsg.type === "user" && lastMsg.text === text) {
+              conv.messages.pop();
+              renderMessages(conv.messages);
+            }
+          }
           lastPendingUserMessage = null;
           return;
         }
