@@ -82,7 +82,13 @@ class BaseAgent(ABC):
     def format_citations(self, chunks: Sequence[KBChunk]) -> str:
         if not chunks:
             return ""
-        return " ".join(f"[{c.article_id}: {c.title}]" for c in chunks)
+        seen_ids: set[str] = set()
+        unique_chunks: list[KBChunk] = []
+        for c in chunks:
+            if c.article_id not in seen_ids:
+                seen_ids.add(c.article_id)
+                unique_chunks.append(c)
+        return " ".join(f"[{c.article_id}: {c.title}]" for c in unique_chunks)
 
     def call_llm(self, messages: list[BaseMessage]) -> str:
         trace_id = TraceContext.get() or "unknown"

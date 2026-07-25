@@ -107,6 +107,8 @@ async def append_message(conversation_id: str, body: MessageRequest, response: R
     TraceContext.set(trace_id)
     now = datetime.now(timezone.utc)
     state = _conversations[conversation_id]
+    if state.messages and state.messages[-1].role == MessageRole.USER and state.messages[-1].content.strip() == body.message.strip():
+        raise HTTPException(status_code=409, detail="Duplicate user message already pending")
     state.messages.append(Message(role=MessageRole.USER, content=body.message, timestamp=now))
     try:
         final = await asyncio.to_thread(get_orch().run_conversation, state)

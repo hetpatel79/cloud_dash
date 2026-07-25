@@ -94,6 +94,7 @@ class SupportOrchestrator:
                     agent=AgentType.TRIAGE,
                 )
             )
+            conv.current_agent = AgentType.TRIAGE
             logger.warning(
                 "guard_blocked",
                 violation_type=res.violation_type,

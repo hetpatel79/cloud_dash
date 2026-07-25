@@ -661,6 +661,7 @@
     let activeConversationId = null;
     let currentAgent = "triage";
     let isLoading = false;
+    let lastPendingUserMessage = null;
     let currentTraceId = null;
 
     // helper: agent badge color map
@@ -725,7 +726,15 @@
           const renderedMarkdown = marked.parse(msg.text);
           let citationsHtml = "";
           if (msg.citations && msg.citations.length) {
-            citationsHtml = `<div class="citations">${msg.citations.map(c => `<span class="citation-pill" data-title="${escapeHtml(c.title)}" data-snippet="${escapeHtml(c.content)}">${escapeHtml(c.article_id)}</span>`).join('')}</div>`;
+            const uniqueCitations = [];
+            const seenIds = new Set();
+            msg.citations.forEach(c => {
+              if (!seenIds.has(c.article_id)) {
+                seenIds.add(c.article_id);
+                uniqueCitations.push(c);
+              }
+            });
+            citationsHtml = `<div class="citations">${uniqueCitations.map(c => `<span class="citation-pill" data-title="${escapeHtml(c.title)}" data-snippet="${escapeHtml(c.content)}">${escapeHtml(c.article_id)}</span>`).join('')}</div>`;
           }
           bubble.innerHTML = agentHtml + `<div class="message-text">${renderedMarkdown}</div>${citationsHtml}<div class="timestamp">${msg.timestamp || ''}</div>`;
           container.appendChild(bubble);
@@ -799,8 +808,9 @@
         createNewConversationWithInitialMessage(text);
         return;
       }
-      if (isLoading) return;
+      if (isLoading || lastPendingUserMessage === text) return;
       isLoading = true;
+      lastPendingUserMessage = text;
       document.getElementById("sendBtn").disabled = true;
       document.getElementById("messageInput").disabled = true;
       const typingDiv = document.getElementById("typingArea");
@@ -815,6 +825,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ conversation_id: activeConversationId, message: text })
         });
+        if (res.status === 409) {
+          lastPendingUserMessage = null;
+          return;
+        }
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
 
@@ -824,13 +838,18 @@
           addMessageToActive({ type: "handover", fromAgent: prevAgent, toAgent: newAgent, reason: "Agent determined context transition needed" });
         }
 
-        addMessageToActive({
-          type: "agent",
-          agent: newAgent,
-          text: data.response || "Response processed.",
-          citations: data.citations || [],
-          timestamp: new Date().toLocaleTimeString()
-        });
+        const conv = conversations.find(c => c.id === activeConversationId);
+        const lastMsg = conv ? conv.messages[conv.messages.length - 1] : null;
+        const duplicate = lastMsg && lastMsg.type === "agent" && lastMsg.text === data.response;
+        if (!duplicate) {
+          addMessageToActive({
+            type: "agent",
+            agent: newAgent,
+            text: data.response || "Response processed.",
+            citations: data.citations || [],
+            timestamp: new Date().toLocaleTimeString()
+          });
+        }
 
         if (data.requires_human === true || data.escalation_package) {
           const pkg = data.escalation_package || {};
@@ -844,15 +863,18 @@
           document.getElementById("messageInput").disabled = true;
           document.getElementById("sendBtn").disabled = true;
           typingDiv.innerHTML = '<span style="color:var(--error);">⚠️ Escalated — conversation locked</span>';
+          lastPendingUserMessage = null;
           isLoading = true;
           return;
         }
 
+        lastPendingUserMessage = null;
         currentAgent = newAgent;
         updateAgentBadgeUI(currentAgent);
         if (data.trace_id) currentTraceId = data.trace_id;
         document.getElementById("traceIdDisplay").innerText = `trace_id: ${currentTraceId || '—'}`;
       } catch (err) {
+        lastPendingUserMessage = null;
         addMessageToActive({ type: "agent", agent: "system", text: "❌ Connection error — is the backend running on :8001? [Retry?]", citations: [], timestamp: new Date().toLocaleTimeString() });
       } finally {
         if (!document.getElementById("messageInput").disabled || document.getElementById("typingArea").innerText.includes("Escalated")) {
