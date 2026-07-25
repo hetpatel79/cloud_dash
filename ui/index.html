@@ -781,11 +781,22 @@
     }
 
     function escapeHtml(str) { return (str || "").replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+    function normalizeText(str) { return (str || "").trim().replace(/\s+/g, " "); }
 
     // add message to active conversation
     function addMessageToActive(msgObj) {
       const conv = conversations.find(c => c.id === activeConversationId);
       if (conv) {
+        if (msgObj.type === "agent") {
+          const lastAgent = [...conv.messages].reverse().find(m => m.type === "agent");
+          if (
+            lastAgent &&
+            lastAgent.agent === msgObj.agent &&
+            normalizeText(lastAgent.text) === normalizeText(msgObj.text)
+          ) {
+            return;
+          }
+        }
         conv.messages.push(msgObj);
         if (msgObj.type === "agent") conv.agentBadge = msgObj.agent;
         if (msgObj.type === "handover") currentAgent = msgObj.toAgent;
@@ -838,18 +849,13 @@
           addMessageToActive({ type: "handover", fromAgent: prevAgent, toAgent: newAgent, reason: "Agent determined context transition needed" });
         }
 
-        const conv = conversations.find(c => c.id === activeConversationId);
-        const lastMsg = conv ? conv.messages[conv.messages.length - 1] : null;
-        const duplicate = lastMsg && lastMsg.type === "agent" && lastMsg.text === data.response;
-        if (!duplicate) {
-          addMessageToActive({
-            type: "agent",
-            agent: newAgent,
-            text: data.response || "Response processed.",
-            citations: data.citations || [],
-            timestamp: new Date().toLocaleTimeString()
-          });
-        }
+        addMessageToActive({
+          type: "agent",
+          agent: newAgent,
+          text: data.response || "Response processed.",
+          citations: data.citations || [],
+          timestamp: new Date().toLocaleTimeString()
+        });
 
         if (data.requires_human === true || data.escalation_package) {
           const pkg = data.escalation_package || {};
