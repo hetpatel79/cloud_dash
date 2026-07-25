@@ -48,6 +48,22 @@ def _citations(state: ConversationState) -> list:
     return list(state.retrieved_chunks)
 
 
+@router.post("/chat", response_model=ConversationResponse)
+async def chat(body: MessageRequest, response: Response) -> ConversationResponse:
+    """Single-endpoint convenience wrapper: accepts a customer message and returns
+    the agent-generated reply along with routing metadata.
+
+    Starts a new conversation if `conversation_id` is empty/unknown, otherwise
+    appends to the existing one. Internally delegates to the same orchestrator
+    used by /conversations and /conversations/{id}/messages.
+    """
+    if not body.conversation_id or body.conversation_id not in _conversations:
+        return await start_conversation(
+            ConversationStartRequest(initial_message=body.message), response
+        )
+    return await append_message(body.conversation_id, body, response)
+
+
 @router.post("/conversations", response_model=ConversationResponse)
 async def start_conversation(body: ConversationStartRequest, response: Response) -> ConversationResponse:
     trace_id = generate_trace_id()
@@ -159,7 +175,22 @@ async def health() -> HealthResponse:
         kb_loaded = bool(count)
     except Exception:
         kb_loaded = False
-    return HealthResponse(status="ok", kb_loaded=kb_loaded, agents_ready=True)
+
+    kb_article_count = 0
+    try:
+        from pathlib import Path
+
+        articles_dir = Path(__file__).resolve().parents[1] / "knowledge_base" / "articles"
+        kb_article_count = len(list(articles_dir.glob("KB-*.json")))
+    except Exception:
+        kb_article_count = 0
+
+    return HealthResponse(
+        status="ok",
+        kb_loaded=kb_loaded,
+        kb_article_count=kb_article_count,
+        agents_ready=True,
+    )
 
 
 @router.post("/kb/reload", response_model=KBReloadResponse)

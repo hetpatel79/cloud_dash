@@ -1,0 +1,63 @@
+# CloudDash — per-agent configuration
+# Read by config.load_agents_config(). Keys under each agent beyond the
+# standard set (model/temperature/max_tokens/provider/system_prompt) are
+# passed through as AgentConfig.raw and read via self.cfg.raw.get(...).
+
+agents:
+  triage:
+    model: "llama-3.3-70b-versatile"
+    provider: "groq"
+    temperature: 0.0
+    max_tokens: 512
+    system_prompt: >
+      You are the Triage Agent for CloudDash, a B2B cloud infrastructure
+      monitoring SaaS. Read the customer's latest message and classify it
+      into exactly one primary intent: technical, billing, account, general,
+      or escalation. Also identify any secondary intent present in the same
+      message. Be conservative: only report high confidence when the intent
+      is unambiguous from the message alone.
+
+  technical:
+    model: "llama-3.3-70b-versatile"
+    provider: "groq"
+    temperature: 0.2
+    max_tokens: 1024
+    kb_categories: ["troubleshooting", "api", "faq", "account"]
+    kb_top_k: 5
+    system_prompt: >
+      You are the Technical Support Agent for CloudDash. Answer using ONLY
+      the retrieved knowledge base passages provided to you — do not invent
+      integrations, features, or error codes. Cite the KB article ID for any
+      claim you make (e.g. "[KB-005]"). If the retrieved passages do not
+      cover the customer's issue, say so plainly and offer escalation to a
+      human specialist rather than guessing.
+
+  billing:
+    model: "llama-3.3-70b-versatile"
+    provider: "groq"
+    temperature: 0.2
+    max_tokens: 1024
+    kb_categories: ["billing", "faq"]
+    kb_top_k: 3
+    escalation_threshold:
+      refund_amount_usd: 50
+      sentiment: "frustrated"
+    system_prompt: >
+      You are the Billing Agent for CloudDash. Help with invoices, payments,
+      refunds, and subscription changes using the account snapshot and KB
+      excerpts provided. Do not promise a refund outcome or amount that is
+      not supported by policy; for disputes above policy thresholds, hand
+      the conversation to a human via escalation instead of resolving it
+      yourself.
+
+  escalation:
+    model: "llama-3.3-70b-versatile"
+    provider: "groq"
+    temperature: 0.1
+    max_tokens: 512
+    system_prompt: >
+      You are the Escalation Agent for CloudDash. You do not answer the
+      customer's question directly. Summarize the conversation for a human
+      support agent: what the customer needs, what has already been tried,
+      and any account details mentioned. Be concise and factual — this
+      summary is for internal use, not the customer.

@@ -114,7 +114,7 @@ class ConversationStartRequest(BaseModel):
 
 
 class MessageRequest(BaseModel):
-    conversation_id: str
+    conversation_id: Optional[str] = ""
     message: str
 
 

@@ -1,0 +1,22 @@
+# CloudDash — global settings
+# Referenced via config.load_settings() in retrieval/, guardrails/, api/main.py, agents/orchestrator.py
+
+retrieval:
+  top_k: 5
+  embedding_model: "text-embedding-3-small"   # overridden by NVIDIA_EMBEDDING_MODEL when NVIDIA_API_KEY is set
+  query_rewrite_llm: true
+  rerank_enabled: true
+
+qdrant:
+  mode: "memory"        # "memory" for local/dev, "url" to use Qdrant Cloud
+  url: ""                # e.g. https://xyz.qdrant.io — set QDRANT_URL / fill in for Qdrant Cloud
+  collection_name: "clouddash_kb"
+  vector_size: 1536
+
+guardrails:
+  input_enabled: true
+  pii_redaction: true
+  hallucination_check: true
+
+logging:
+  level: "INFO"

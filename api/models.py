@@ -12,6 +12,7 @@ from models.schemas import AgentType, ConversationState, KBChunk, Message
 class HealthResponse(BaseModel):
     status: str
     kb_loaded: bool
+    kb_article_count: int = 0
     agents_ready: bool
 
 
