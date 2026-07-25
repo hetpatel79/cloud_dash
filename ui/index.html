@@ -842,15 +842,18 @@
     function escapeHtml(str) { return (str || "").replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
     function normalizeText(str) { return (str || "").trim().replace(/\s+/g, " "); }
 
-    // Returns the text of the most recent USER message in a given conversation,
+    // Returns the text of the most recent USER message in a given conversation
+    // (searching backward past any agent/handover/escalation messages in between),
     // or null if there isn't one yet. Scoped per-conversation on purpose — a
     // single global "last message" variable would incorrectly block a message
     // in conversation B just because it matched the last message in conversation A.
     function getLastUserMessage(convId) {
       const conv = conversations.find(c => c.id === convId);
       if (!conv || !conv.messages || !conv.messages.length) return null;
-      const last = conv.messages[conv.messages.length - 1];
-      return last && last.type === "user" ? last.text : null;
+      for (let i = conv.messages.length - 1; i >= 0; i--) {
+        if (conv.messages[i].type === "user") return conv.messages[i].text;
+      }
+      return null;
     }
 
     // add message to active conversation

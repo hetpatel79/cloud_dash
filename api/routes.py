@@ -118,8 +118,9 @@ async def append_message(conversation_id: str, body: MessageRequest, response: R
     TraceContext.set(trace_id)
     now = datetime.now(timezone.utc)
     state = _conversations[conversation_id]
-    if state.messages and state.messages[-1].role == MessageRole.USER and state.messages[-1].content.strip() == body.message.strip():
-        raise HTTPException(status_code=409, detail="Duplicate user message already pending")
+    last_user_msg = next((m for m in reversed(state.messages) if m.role == MessageRole.USER), None)
+    if last_user_msg and last_user_msg.content.strip() == body.message.strip():
+        raise HTTPException(status_code=409, detail="This message is similar to your previous message.")
     state.input_guard_failed = False
     state.messages.append(Message(role=MessageRole.USER, content=body.message, timestamp=now))
     try:
