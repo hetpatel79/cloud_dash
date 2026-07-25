@@ -662,6 +662,7 @@
     let currentAgent = "triage";
     let isLoading = false;
     let lastPendingUserMessage = null;
+    let lastUserMessage = "";
     let currentTraceId = null;
 
     // helper: agent badge color map
@@ -820,9 +821,10 @@
         createNewConversationWithInitialMessage(text);
         return;
       }
-      if (isLoading || lastPendingUserMessage === text) return;
+      if (isLoading || lastPendingUserMessage === text || lastUserMessage === text) return;
       isLoading = true;
       lastPendingUserMessage = text;
+      lastUserMessage = text;
       document.getElementById("sendBtn").disabled = true;
       document.getElementById("messageInput").disabled = true;
       const typingDiv = document.getElementById("typingArea");
@@ -851,11 +853,12 @@
         }
 
         const conv = conversations.find(c => c.id === activeConversationId);
-        const lastAgent = conv ? [...conv.messages].reverse().find(m => m.type === "agent") : null;
+        const lastMessage = conv ? conv.messages[conv.messages.length - 1] : null;
         const responseText = data.response || "Response processed.";
-        const isDuplicateAgentResponse = lastAgent &&
-          lastAgent.agent === newAgent &&
-          normalizeText(lastAgent.text) === normalizeText(responseText);
+        const isDuplicateAgentResponse = lastMessage &&
+          lastMessage.type === "agent" &&
+          lastMessage.agent === newAgent &&
+          normalizeText(lastMessage.text) === normalizeText(responseText);
 
         if (!isDuplicateAgentResponse) {
           addMessageToActive({
