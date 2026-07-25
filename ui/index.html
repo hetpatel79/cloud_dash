@@ -708,8 +708,6 @@
     let activeConversationId = null;
     let currentAgent = "triage";
     let isLoading = false;
-    let lastPendingUserMessage = null;
-    let lastUserMessage = "";
     let currentTraceId = null;
 
     // Notification system
@@ -844,6 +842,17 @@
     function escapeHtml(str) { return (str || "").replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
     function normalizeText(str) { return (str || "").trim().replace(/\s+/g, " "); }
 
+    // Returns the text of the most recent USER message in a given conversation,
+    // or null if there isn't one yet. Scoped per-conversation on purpose — a
+    // single global "last message" variable would incorrectly block a message
+    // in conversation B just because it matched the last message in conversation A.
+    function getLastUserMessage(convId) {
+      const conv = conversations.find(c => c.id === convId);
+      if (!conv || !conv.messages || !conv.messages.length) return null;
+      const last = conv.messages[conv.messages.length - 1];
+      return last && last.type === "user" ? last.text : null;
+    }
+
     // add message to active conversation
     function addMessageToActive(msgObj) {
       const conv = conversations.find(c => c.id === activeConversationId);
@@ -881,13 +890,16 @@
         createNewConversationWithInitialMessage(text);
         return;
       }
-      if (isLoading || lastPendingUserMessage === text || lastUserMessage === text) {
-        showNotification("⚠️ Duplicate message — you just sent this. Please try a different message.", 'warning', 3000);
+      if (isLoading) {
+        showNotification("⏳ Please wait for the current response first.", 'warning', 2500);
+        return;
+      }
+      const lastUserMessage = getLastUserMessage(activeConversationId);
+      if (lastUserMessage !== null && normalizeText(lastUserMessage) === normalizeText(text)) {
+        showNotification("This message is similar to your previous message.", 'warning', 3000);
         return;
       }
       isLoading = true;
-      lastPendingUserMessage = text;
-      lastUserMessage = text;
       document.getElementById("sendBtn").disabled = true;
       document.getElementById("messageInput").disabled = true;
       const typingDiv = document.getElementById("typingArea");
@@ -903,8 +915,7 @@
           body: JSON.stringify({ conversation_id: activeConversationId, message: text })
         });
         if (res.status === 409) {
-          showNotification("⚠️ Backend: Duplicate message rejected.", 'warning', 3000);
-          lastPendingUserMessage = null;
+          showNotification("This message is similar to your previous message.", 'warning', 3000);
           return;
         }
         if (!res.ok) throw new Error("API error");
@@ -946,18 +957,15 @@
           document.getElementById("messageInput").disabled = true;
           document.getElementById("sendBtn").disabled = true;
           typingDiv.innerHTML = '<span style="color:var(--error);">⚠️ Escalated — conversation locked</span>';
-          lastPendingUserMessage = null;
           isLoading = true;
           return;
         }
 
-        lastPendingUserMessage = null;
         currentAgent = newAgent;
         updateAgentBadgeUI(currentAgent);
         if (data.trace_id) currentTraceId = data.trace_id;
         document.getElementById("traceIdDisplay").innerText = `trace_id: ${currentTraceId || '—'}`;
       } catch (err) {
-        lastPendingUserMessage = null;
         addMessageToActive({ type: "agent", agent: "system", text: "❌ Connection error — is the backend running on :8001? [Retry?]", citations: [], timestamp: new Date().toLocaleTimeString() });
       } finally {
         if (!document.getElementById("messageInput").disabled || document.getElementById("typingArea").innerText.includes("Escalated")) {
