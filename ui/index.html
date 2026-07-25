@@ -850,13 +850,22 @@
           addMessageToActive({ type: "handover", fromAgent: prevAgent, toAgent: newAgent, reason: "Agent determined context transition needed" });
         }
 
-        addMessageToActive({
-          type: "agent",
-          agent: newAgent,
-          text: data.response || "Response processed.",
-          citations: data.citations || [],
-          timestamp: new Date().toLocaleTimeString()
-        });
+        const conv = conversations.find(c => c.id === activeConversationId);
+        const lastAgent = conv ? [...conv.messages].reverse().find(m => m.type === "agent") : null;
+        const responseText = data.response || "Response processed.";
+        const isDuplicateAgentResponse = lastAgent &&
+          lastAgent.agent === newAgent &&
+          normalizeText(lastAgent.text) === normalizeText(responseText);
+
+        if (!isDuplicateAgentResponse) {
+          addMessageToActive({
+            type: "agent",
+            agent: newAgent,
+            text: responseText,
+            citations: data.citations || [],
+            timestamp: new Date().toLocaleTimeString()
+          });
+        }
 
         if (data.requires_human === true || data.escalation_package) {
           const pkg = data.escalation_package || {};
