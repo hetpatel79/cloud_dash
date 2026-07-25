@@ -44,6 +44,17 @@ def _latest_assistant(state: ConversationState) -> str:
     return ""
 
 
+def _latest_assistant_after_last_user(state: ConversationState) -> str:
+    last_user_index = -1
+    for idx, m in enumerate(state.messages):
+        if m.role == MessageRole.USER:
+            last_user_index = idx
+    for m in state.messages[last_user_index + 1 :]:
+        if m.role == MessageRole.ASSISTANT:
+            return m.content
+    return ""
+
+
 def _citations(state: ConversationState) -> list:
     return list(state.retrieved_chunks)
 
@@ -109,6 +120,7 @@ async def append_message(conversation_id: str, body: MessageRequest, response: R
     state = _conversations[conversation_id]
     if state.messages and state.messages[-1].role == MessageRole.USER and state.messages[-1].content.strip() == body.message.strip():
         raise HTTPException(status_code=409, detail="Duplicate user message already pending")
+    state.input_guard_failed = False
     state.messages.append(Message(role=MessageRole.USER, content=body.message, timestamp=now))
     try:
         final = await asyncio.to_thread(get_orch().run_conversation, state)
@@ -117,10 +129,13 @@ async def append_message(conversation_id: str, body: MessageRequest, response: R
         raise HTTPException(status_code=500, detail="Conversation engine failed") from exc
     _conversations[conversation_id] = final
     response.headers["X-Trace-ID"] = trace_id
+    latest_response = _latest_assistant_after_last_user(final)
+    if not latest_response:
+        latest_response = _latest_assistant(final)
     return ConversationResponse(
         conversation_id=conversation_id,
         trace_id=trace_id,
-        response=_latest_assistant(final),
+        response=latest_response,
         current_agent=final.current_agent,
         citations=_citations(final),
         is_resolved=final.is_resolved,

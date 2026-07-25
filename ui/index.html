@@ -854,13 +854,13 @@
 
         const conv = conversations.find(c => c.id === activeConversationId);
         const lastMessage = conv ? conv.messages[conv.messages.length - 1] : null;
-        const responseText = data.response || "Response processed.";
+        const responseText = (data.response || "").trim();
         const isDuplicateAgentResponse = lastMessage &&
           lastMessage.type === "agent" &&
           lastMessage.agent === newAgent &&
           normalizeText(lastMessage.text) === normalizeText(responseText);
 
-        if (!isDuplicateAgentResponse) {
+        if (responseText && !isDuplicateAgentResponse) {
           addMessageToActive({
             type: "agent",
             agent: newAgent,

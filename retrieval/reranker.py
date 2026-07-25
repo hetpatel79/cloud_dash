@@ -74,17 +74,29 @@ class _LLMFallbackReranker:
 
     def __init__(self, model: str | None = None) -> None:
         self.model_name = model or "meta/llama-3.3-70b-instruct"
+        self._llm = None
         try:
             self._llm = chat_nvidia(model=self.model_name, temperature=0.0, max_tokens=2048)
         except EnvironmentError:
-            from utils.openai_compat import chat_groq
-            self.model_name = "llama-3.3-70b-versatile"
-            self._llm = chat_groq(model=self.model_name, temperature=0.0, max_tokens=2048)
+            try:
+                from utils.openai_compat import chat_groq
+                self.model_name = "llama-3.3-70b-versatile"
+                self._llm = chat_groq(model=self.model_name, temperature=0.0, max_tokens=2048)
+            except EnvironmentError:
+                logger.warning(
+                    "rerank_fallback_unavailable",
+                    model=self.model_name,
+                    reason="No NVIDIA or Groq keys available, skipping rerank fallback",
+                )
+                self._llm = None
 
     def rerank(self, query: str, chunks: Sequence[KBChunk]) -> list[KBChunk]:
         trace_id = TraceContext.get() or "unknown"
         if not chunks:
             return []
+        if self._llm is None:
+            logger.warning("rerank_skipped_no_llm", query=query, model=self.model_name, trace_id=trace_id)
+            return list(chunks)
 
         sys = SystemMessage(
             content=(

@@ -101,6 +101,8 @@ class SupportOrchestrator:
                 reason=res.reason,
                 trace_id=conv.trace_id,
             )
+        else:
+            conv.input_guard_failed = False
         return self._to_graph(conv)
 
     def _safety_check_node(self, state: GraphState) -> GraphState:

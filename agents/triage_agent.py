@@ -59,6 +59,29 @@ class TriageAgent(BaseAgent):
         state.triage_confidence = float(decision.confidence)
         state.entities.detected_language = getattr(decision, "detected_language", "english")
         if decision.confidence < 0.7:
+            fallback_intent = self._low_confidence_fallback(latest_user)
+            if fallback_intent != IntentType.UNKNOWN:
+                state.intent = fallback_intent
+                state.secondary_intents = []
+                state.current_agent = (
+                    AgentType.BILLING
+                    if fallback_intent == IntentType.BILLING
+                    else AgentType.ESCALATION
+                    if fallback_intent == IntentType.ESCALATION
+                    else AgentType.TECHNICAL
+                )
+                state.routing_history.append(f"triage:low_confidence_fallback:{fallback_intent.value}")
+                state.agent_responses.append(
+                    {
+                        "agent": "triage",
+                        "intent": fallback_intent.value,
+                        "secondary_intents": [],
+                        "confidence": decision.confidence,
+                        "routing_reason": "low_confidence_fallback",
+                    }
+                )
+                return state
+
             clarify = (
                 "Thanks for reaching out to CloudDash support. Could you share a bit more detail about whether "
                 "this is mainly a technical issue, a billing question, or an account/access topic?"
@@ -116,3 +139,73 @@ class TriageAgent(BaseAgent):
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
         return state
+
+    def _low_confidence_fallback(self, text: str) -> IntentType:
+        lowered = (text or "").lower()
+        billing_keywords = [
+            "invoice",
+            "charged",
+            "charge",
+            "double",
+            "twice",
+            "refund",
+            "billing",
+            "subscription",
+            "upgrade",
+            "downgrade",
+            "enterprise",
+            "plan",
+            "pricing",
+            "payment",
+        ]
+        escalation_keywords = [
+            "manager",
+            "escalat",
+            "supervisor",
+            "human",
+            "contact support",
+            "speak to",
+            "complain",
+        ]
+        technical_keywords = [
+            "alert",
+            "dashboard",
+            "integration",
+            "api",
+            "webhook",
+            "sso",
+            "credentials",
+            "login",
+            "access",
+            "error",
+            "failed",
+            "issue",
+            "monitoring",
+            "incident",
+            "connect",
+            "connection",
+            "status",
+            "latency",
+            "failure",
+        ]
+        account_keywords = [
+            "account",
+            "teams",
+            "rbac",
+            "team",
+            "members",
+            "permissions",
+            "role",
+            "billing address",
+            "password",
+        ]
+
+        if any(k in lowered for k in escalation_keywords):
+            return IntentType.ESCALATION
+        if any(k in lowered for k in billing_keywords):
+            return IntentType.BILLING
+        if any(k in lowered for k in technical_keywords):
+            return IntentType.TECHNICAL
+        if any(k in lowered for k in account_keywords):
+            return IntentType.ACCOUNT
+        return IntentType.UNKNOWN
