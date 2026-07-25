@@ -788,11 +788,12 @@
       const conv = conversations.find(c => c.id === activeConversationId);
       if (conv) {
         if (msgObj.type === "agent") {
-          const lastAgent = [...conv.messages].reverse().find(m => m.type === "agent");
+          const lastMsg = conv.messages[conv.messages.length - 1];
           if (
-            lastAgent &&
-            lastAgent.agent === msgObj.agent &&
-            normalizeText(lastAgent.text) === normalizeText(msgObj.text)
+            lastMsg &&
+            lastMsg.type === "agent" &&
+            lastMsg.agent === msgObj.agent &&
+            normalizeText(lastMsg.text) === normalizeText(msgObj.text)
           ) {
             return;
           }
